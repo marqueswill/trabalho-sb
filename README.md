@@ -9,6 +9,9 @@ TODO: introdução do trabalho
 ## Requisitos 
 
 ## Como executar
+temporario:
+g++ -Wall -std=c++11 main.cpp preprocessor.cpp assembler.cpp simulator.cpp -o montador
+
 ### 
 ### 
 ### 

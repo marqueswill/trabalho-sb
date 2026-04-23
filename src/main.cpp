@@ -31,15 +31,18 @@ int main(int argc, char* argv[]) {
     if (extension == ".asm") {
         cout << "Iniciando Pré-processamento..." << endl;
         // Chama a função principal do módulo de pré-processamento
-        // Ex: runPreprocessor(filename);
+        // Ex: 
+        runPreprocessor(filename);
     } else if (extension == ".pre") {
         cout << "Iniciando Montagem (Passagem Única)..." << endl;
         // Chama a função principal do módulo montador
-        // Ex: runAssembler(filename);
+        // Ex: 
+        runAssembler(filename);
     } else if (extension == ".obj") {
         cout << "Iniciando Simulação..." << endl;
         // Chama a função principal do módulo simulador
-        // Ex: runSimulator(filename);
+        // Ex: 
+        runSimulator(filename);
     } else {
         cerr << "Erro: Extensão não reconhecida (" << extension << ")." << endl;
         cerr << "Extensões válidas para este programa: .asm, .pre, .obj" << endl;

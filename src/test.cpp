@@ -3,7 +3,6 @@
 #include <sstream>
 #include <string>
 
-// Incluímos os módulos do nosso projeto
 #include "assembler.h"
 #include "preprocessor.h"
 
@@ -15,7 +14,6 @@ bool compareFiles(const string& generatedFile, const string& expectedFile) {
     ifstream fExp(expectedFile);
 
     if (!fGen.is_open() || !fExp.is_open()) {
-        // Reduzimos o log de erro aqui para não poluir o terminal; o testador principal avisa qual falhou.
         return false;
     }
 
@@ -37,16 +35,11 @@ bool runTestCase(const string& testName,
 
     // 1. Executar Pré-processador
     runPreprocessor(inputAsm);
-
-    // O preprocessor.cpp gera um arquivo com o mesmo nome, mas extensão .pre
     string baseName = inputAsm.substr(0, inputAsm.find_last_of('.'));
     string generatedPre = baseName + ".pre";
 
     // 2. Executar Montador
-    // Passamos o .pre gerado para o assembler
     runAssembler(generatedPre);
-
-    // O assembler.cpp gera os arquivos .obj e .pen com base no .pre fornecido
     string generatedObj = baseName + ".obj";
     string generatedPen = baseName + ".pen";
 
@@ -76,27 +69,26 @@ bool runTestCase(const string& testName,
 //     // Cenário: Arquivo cheio de espaços duplos, tabs e minúsculas.
 //     return runTestCase("Formatacao Extrema",
 //                        "../examples/test_format.asm",
-//                        "../examples/expected_test_format.pre",
-//                        "../examples/expected_test_format.obj",
-//                        "../examples/expected_test_format.pen");
+//                        "../examples/test_format.pre",
+//                        "../examples/test_format.obj",
+//                        "../examples/test_format.pen");
 // }
 
 // bool testSectionOrder() {
 //     // Cenário: SECTION DATA vem antes da SECTION TEXT no .asm
 //     return runTestCase("Inversao de Secoes",
 //                        "../examples/test_sections.asm",
-//                        "../examples/expected_test_sections.pre",
-//                        "../examples/expected_test_sections.obj",
-//                        "../examples/expected_test_sections.pen");
+//                        "../examples/test_sections.pre",
+//                        "../examples/test_sections.obj",
+//                        "../examples/test_sections.pen");
 // }
 
-bool testLogicPass1() {
-    // Cenário: Teste usando o arquivo de exemplo completo dado na especificação (ex1.asm)
+bool testEx1() {
     return runTestCase("Exemplo Base (ex1.asm)",
                        "../examples/ex1.asm",
-                       "../examples/expected_ex1.pre",
-                       "../examples/expected_ex1.obj",
-                       "../examples/expected_ex1.pen");
+                       "../examples/ex1.pre",
+                       "../examples/ex1.obj",
+                       "../examples/ex1.pen");
 }
 
 // =====================================================================
@@ -108,13 +100,13 @@ int main() {
     cout << "========================================" << endl
          << endl;
 
-    int totalTests = 1;  // Atualize esse número quando adicionar novos testes
+    int totalTests = 1;  // ATUALIZAR MANUALMENTE!!
     int passedTests = 0;
 
     // Executar bateria de testes (usando as funções encapsuladas)
+    if (testEx1()) passedTests++;
     // if (testFormatting()) passedTests++;
     // if (testSectionOrder()) passedTests++;
-    if (testLogicPass1()) passedTests++;
 
     cout << endl
          << "========================================" << endl;
@@ -122,5 +114,5 @@ int main() {
     cout << "========================================" << endl;
 
     // Retorna 0 se tudo passou, ou 1 se algo falhou
-    return (passedTests == totalTests) ? 0 : 1;
+    return (passedTests != totalTests);
 }

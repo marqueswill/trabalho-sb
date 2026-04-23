@@ -11,17 +11,17 @@ using namespace std;
 struct SymbolInfo {
     int address = -1;
     bool isDefined = false;
-    vector<int> pendingReferences; // Lista de pendencias para passagem unica
+    vector<int> pendingReferences; // Lista de pendencias para passagem unica (no buffer ou na tabela de simbolos?)
 };
 
 void runAssembler(const string& filename) {
     ifstream inputFile(filename);
     if (!inputFile.is_open()) {
-        cerr << "Erro: Nao foi possivel abrir o ficheiro " << filename << endl;
+        cerr << "Erro: Nao foi possivel abrir o arquivo " << filename << endl;
         return;
     }
 
-    // Preparar os ficheiros de saida (.obj e .pen)
+    // Preparar os arquivos de saida (.obj e .pen)
     string baseFilename = filename.substr(0, filename.find_last_of('.'));
     ofstream objFile(baseFilename + ".obj");
     ofstream penFile(baseFilename + ".pen");
@@ -35,14 +35,13 @@ void runAssembler(const string& filename) {
 
     while (getline(inputFile, line)) {
         // TODO: Analisar a linha (separar rotulo, instrucao, operandos)
-        // TODO: Atualizar tabela de simbolos
-        // TODO: Gerar codigo de maquina parcial
-        // TODO: Guardar as pendencias no ficheiro .pen conforme as regras
+        // TODO: Atualizar tabela de simbolos. Se necessário, atualizar a lista de pendências
+        // TODO: Gerar codigo de maquina parcial (lista de pendências no buffer ou tabela de simbolos?)
     }
 
     // TODO: Escrever o codigo de maquina final em uma unica linha no .obj
 
-    cout << "Montagem concluida. Ficheiros gerados: " << baseFilename << ".obj e " << baseFilename << ".pen" << endl;
+    cout << "Montagem concluida. arquivos gerados: " << baseFilename << ".obj e " << baseFilename << ".pen" << endl;
 
     inputFile.close();
     objFile.close();

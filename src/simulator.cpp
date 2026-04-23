@@ -11,7 +11,7 @@ using namespace std;
 void runSimulator(const string& filename) {
     ifstream inputFile(filename);
     if (!inputFile.is_open()) {
-        cerr << "Erro: Nao foi possivel abrir o ficheiro " << filename << endl;
+        cerr << "Erro: Nao foi possivel abrir o arquivo " << filename << endl;
         return;
     }
 

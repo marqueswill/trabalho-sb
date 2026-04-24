@@ -7,6 +7,8 @@ TODO: introdução do trabalho
 
 
 ## Requisitos 
+- Sistema Operacional: Linux
+- Compilador: GNU Compiler Collection (GCC)
 
 ## Como executar
 temporario:

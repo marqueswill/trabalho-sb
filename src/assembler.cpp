@@ -38,6 +38,7 @@ void runAssembler(const string& filename) {
         // TODO: Atualizar lista dependência no buffer do .pen e no buffer do .obj -> 
         // Substituir lista de pendência pela definição só no segundo buffer
         
+        
     }
     // TODO: Lógica symbol not defined
     

@@ -1,9 +1,10 @@
 #include "preprocessor.h"
-#include <iostream>
+
+#include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 using namespace std;
 
@@ -16,13 +17,10 @@ void runPreprocessor(const string& filename) {
     }
 
     // 2. Preparar o nome do arquivo de saida (.pre)
-    string outFilename = filename;
-    size_t dotPos = outFilename.find_last_of('.');
-    if (dotPos != string::npos) {
-        outFilename = outFilename.substr(0, dotPos) + ".pre";
-    }
-
+    string baseFilename = filename.substr(0, filename.find_last_of('.'));
+    string outFilename = baseFilename + ".pre";  // TODO: salvar na pasta outputs
     ofstream outputFile(outFilename);
+
     if (!outputFile.is_open()) {
         cerr << "Erro: Nao foi possivel criar o arquivo " << outFilename << endl;
         inputFile.close();
@@ -64,7 +62,7 @@ void runPreprocessor(const string& filename) {
         //   -> Se for Opcode:
         //        - O terceiro é o simbolo/endereço. Ex: "L1: ADD DOIS" ou "L1: COPY A,B"
         //        - Se o Opcode for copy, o símbolo é composto por dois simbolos separados por ','
-        
+
         // TODO: Separar as linhas entre SECTION TEXT e SECTION DATA
         // para garantir que a SECTION TEXT seja escrita primeiro.
     }

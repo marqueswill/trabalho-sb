@@ -7,13 +7,54 @@ TODO: introdução do trabalho
 
 
 ## Requisitos 
-- Sistema Operacional: Linux
+- Sistema Operacional: Windows
 - Compilador: GNU Compiler Collection (GCC)
 
-## Como executar
-temporario:
-g++ -Wall -std=c++11 main.cpp preprocessor.cpp assembler.cpp simulator.cpp -o montador
+## Como executar o montador
 
-### 
-### 
-### 
+---
+### CodeBlocks
+
+---
+### Powershell
+#### Execução automática
+Na pasta raíz do projeto, execute:
+```mingw32-make test```
+
+#### Execução manual
+
+Ou então, se deseja compilar manualmente, primeiro compile o arquivo main:
+
+```
+g++ -Wall -std=c++11 src/main.cpp src/preprocessor.cpp src/assembler.cpp src/simulator.cpp -o ./build/montador
+```
+E então execute o arquivo gerado:
+```
+./build/montador examples/ex1.asm
+```
+---
+
+
+## Como executar os testes
+### Powershell
+
+#### Execução automática
+Na pasta raíz do projeto, execute:
+```mingw32-make test```
+
+#### Execução manual
+
+Ou então, se deseja compilar manualmente, primeiro compile o arquivo de testes:
+```
+g++ -Wall -std=c++11 tests/test.cpp src/preprocessor.cpp src/assembler.cpp src/simulator.cpp -I./src -o ./build/run_tests
+```
+E então execute o arquivo gerado:
+
+```
+./build/run_tests
+
+```
+
+
+
+

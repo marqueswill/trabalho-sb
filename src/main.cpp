@@ -9,6 +9,8 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+    setlocale(LC_ALL, "Portuguese");
+
     // 1. Validação básica de argumentos da linha de comando
     if (argc != 2) {
         cerr << "Uso incorreto. Formato esperado: ./montador <arquivo>" << endl;

@@ -10,6 +10,7 @@ using namespace std;
 
 // Lê dois arquivos inteiros para a memória e verifica se são idênticos.
 bool compareFiles(const string& generatedFile, const string& expectedFile) {
+    
     ifstream fGen(generatedFile);
     ifstream fExp(expectedFile);
 
@@ -69,32 +70,33 @@ bool runTestCase(const string& testName,
 //     // Cenário: Arquivo cheio de espaços duplos, tabs e minúsculas.
 //     return runTestCase("Formatacao Extrema",
 //                        "../examples/test_format.asm",
-//                        "../examples/test_format.pre",
-//                        "../examples/test_format.obj",
-//                        "../examples/test_format.pen");
+//                        "../expected/test_format.pre",
+//                        "../expected/test_format.obj",
+//                        "../expected/test_format.pen");
 // }
 
 // bool testSectionOrder() {
 //     // Cenário: SECTION DATA vem antes da SECTION TEXT no .asm
 //     return runTestCase("Inversao de Secoes",
 //                        "../examples/test_sections.asm",
-//                        "../examples/test_sections.pre",
-//                        "../examples/test_sections.obj",
-//                        "../examples/test_sections.pen");
+//                        "../expected/test_sections.pre",
+//                        "../expected/test_sections.obj",
+//                        "../expected/test_sections.pen");
 // }
 
 bool testEx1() {
     return runTestCase("Exemplo Base (ex1.asm)",
                        "../examples/ex1.asm",
-                       "../examples/ex1.pre",
-                       "../examples/ex1.obj",
-                       "../examples/ex1.pen");
+                       "../expected/ex1.pre",
+                       "../expected/ex1.obj",
+                       "../expected/ex1.pen");
 }
 
 // =====================================================================
 // MAIN DO TESTADOR
 // =====================================================================
 int main() {
+    setlocale(LC_ALL, "Portuguese");
     cout << "========================================" << endl;
     cout << " INICIANDO SUITE DE TESTES DO MONTADOR" << endl;
     cout << "========================================" << endl

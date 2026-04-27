@@ -88,17 +88,16 @@ bool runTestCase(const string& testName,
 
 bool testEx1() {
     return runTestCase("Exemplo Base (ex1.asm)",
-                       "examples/ex1.asm",
-                       "expected/ex1.pre",
-                       "expected/ex1.obj",
-                       "expected/ex1.pen");
+                       "tests/examples/ex1.asm",
+                       "tests/expected/ex1.pre",
+                       "tests/expected/ex1.obj",
+                       "tests/expected/ex1.pen");
 }
 
 // =====================================================================
 // MAIN DO TESTADOR
 // =====================================================================
 int main() {
-    setlocale(LC_ALL, "Portuguese");
     cout << "========================================" << endl;
     cout << " INICIANDO SUITE DE TESTES DO MONTADOR" << endl;
     cout << "========================================" << endl

@@ -43,7 +43,7 @@ string getOutFileName(const string& filename, const string& extension) {
     string baseName = filename.substr(startPos, filename.length() - startPos - 4);
 
     // Constrói o novo caminho forçando a pasta "outputs/"
-    string outFilename = "outputs/" + baseName + extension;
+    string outFilename = "tests/outputs/" + baseName + extension;
 
     return outFilename;
 };

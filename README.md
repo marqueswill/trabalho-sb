@@ -54,7 +54,8 @@ E então execute o arquivo gerado:
 ./build/run_tests
 
 ```
-
-
-
-
+## Outros comandos
+ - Compilar e executar para um arquivo: ```mingw32-make run FILE="nome_arquivo.asm"``` (só o run executa ex1.asm)
+ - Apenas compilar arquivos: ```mingw32-make all```
+ - Limpar arquivos gerados: ```mingw32-make clean```
+ - Criar pastas build e outputs: ```mingw32-make prepare```

@@ -26,10 +26,12 @@ prepare:
 
 
 # Atalho para rodar o programa principal com ex1.asm
+FILE ?= ex1
+
 run: $(MAIN_EXEC)
-	./$(MAIN_EXEC) $(EXAMPLES_DIR)/ex1.asm
-	./$(MAIN_EXEC) $(OUTPUT_DIR)/ex1.pre
-	./$(MAIN_EXEC) $(OUTPUT_DIR)/ex1.obj
+	./$(MAIN_EXEC) $(EXAMPLES_DIR)/$(FILE).asm
+	./$(MAIN_EXEC) $(OUTPUT_DIR)/$(FILE).pre
+	./$(MAIN_EXEC) $(OUTPUT_DIR)/$(FILE).obj
 
 # Atalho para rodar os testes
 test: $(TEST_EXEC)

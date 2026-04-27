@@ -17,11 +17,20 @@ TODO: introdução do trabalho
 
 ---
 ### Powershell
-#### Execução automática
+#### Compilação automática
 Na pasta raíz do projeto, execute:
+```mingw32-make all```
+
+#### Execução de testes
 ```mingw32-make test```
 
-#### Execução manual
+#### Compilação e simulação automática:
+Para arquivo exemplo default:
+ ```mingw32-make run```
+Para arquivo específico:
+ ```mingw32-make run FILE="caminho_arquivo/nome_arquivo.asm"```
+
+#### Compilação manual
 
 Ou então, se deseja compilar manualmente, primeiro compile o arquivo main:
 
@@ -32,30 +41,7 @@ E então execute o arquivo gerado:
 ```
 ./build/montador examples/ex1.asm
 ```
----
 
 
-## Como executar os testes
-### Powershell
 
-#### Execução automática
-Na pasta raíz do projeto, execute:
-```mingw32-make test```
 
-#### Execução manual
-
-Ou então, se deseja compilar manualmente, primeiro compile o arquivo de testes:
-```
-g++ -Wall -std=c++11 tests/test.cpp src/preprocessor.cpp src/assembler.cpp src/simulator.cpp -I./src -o ./build/run_tests
-```
-E então execute o arquivo gerado:
-
-```
-./build/run_tests
-
-```
-## Outros comandos
- - Compilar e executar para um arquivo: ```mingw32-make run FILE="nome_arquivo.asm"``` (só o run executa ex1.asm)
- - Apenas compilar arquivos: ```mingw32-make all```
- - Limpar arquivos gerados: ```mingw32-make clean```
- - Criar pastas build e outputs: ```mingw32-make prepare```

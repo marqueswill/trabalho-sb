@@ -4,6 +4,7 @@
 #include <string>
 
 #include "assembler.h"
+#include "auxiliar.h"
 #include "preprocessor.h"
 
 using namespace std;
@@ -36,17 +37,19 @@ bool runTestCase(const string& testName,
     // 1. Executar Pré-processador
     runPreprocessor(inputAsm);
     string baseName = inputAsm.substr(0, inputAsm.find_last_of('.'));
-    string generatedPre = baseName + ".pre";
+    string generatedPre = getOutFileName(inputAsm, ".pre");
 
     // 2. Executar Montador
     runAssembler(generatedPre);
-    string generatedObj = baseName + ".obj";
-    string generatedPen = baseName + ".pen";
+    string generatedObj = getOutFileName(inputAsm, ".obj");
+    string generatedPen = getOutFileName(inputAsm, ".pen");
 
     // 3. Comparar todos os resultados
     bool passedPre = compareFiles(generatedPre, expectedPre);
-    bool passedObj = compareFiles(generatedObj, expectedObj);
-    bool passedPen = compareFiles(generatedPen, expectedPen);
+    bool passedObj = false;
+    // compareFiles(generatedObj, expectedObj);
+    bool passedPen = false;
+    // compareFiles(generatedPen, expectedPen);
 
     if (passedPre && passedObj && passedPen) {
         cout << "  -> \033[1;32mPASSOU\033[0m" << endl;  // Imprime verde
@@ -69,32 +72,33 @@ bool runTestCase(const string& testName,
 //     // Cenário: Arquivo cheio de espaços duplos, tabs e minúsculas.
 //     return runTestCase("Formatacao Extrema",
 //                        "../examples/test_format.asm",
-//                        "../examples/test_format.pre",
-//                        "../examples/test_format.obj",
-//                        "../examples/test_format.pen");
+//                        "../expected/test_format.pre",
+//                        "../expected/test_format.obj",
+//                        "../expected/test_format.pen");
 // }
 
 // bool testSectionOrder() {
 //     // Cenário: SECTION DATA vem antes da SECTION TEXT no .asm
 //     return runTestCase("Inversao de Secoes",
 //                        "../examples/test_sections.asm",
-//                        "../examples/test_sections.pre",
-//                        "../examples/test_sections.obj",
-//                        "../examples/test_sections.pen");
+//                        "../expected/test_sections.pre",
+//                        "../expected/test_sections.obj",
+//                        "../expected/test_sections.pen");
 // }
 
 bool testEx1() {
     return runTestCase("Exemplo Base (ex1.asm)",
-                       "../examples/ex1.asm",
-                       "../examples/ex1.pre",
-                       "../examples/ex1.obj",
-                       "../examples/ex1.pen");
+                       "examples/ex1.asm",
+                       "expected/ex1.pre",
+                       "expected/ex1.obj",
+                       "expected/ex1.pen");
 }
 
 // =====================================================================
 // MAIN DO TESTADOR
 // =====================================================================
 int main() {
+    setlocale(LC_ALL, "Portuguese");
     cout << "========================================" << endl;
     cout << " INICIANDO SUITE DE TESTES DO MONTADOR" << endl;
     cout << "========================================" << endl

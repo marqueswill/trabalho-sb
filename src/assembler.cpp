@@ -1,5 +1,4 @@
 #include "assembler.h"
-#include "auxiliar.h"
 
 #include <fstream>
 #include <iostream>
@@ -7,10 +6,9 @@
 #include <string>
 #include <vector>
 
+#include "auxiliar.h"
 
 using namespace std;
-
-
 
 void runAssembler(const string& filename) {
     ifstream inputFile(filename);
@@ -21,10 +19,13 @@ void runAssembler(const string& filename) {
 
     // Preparar os arquivos de saida (.obj e .pen)
     string baseFilename = filename.substr(0, filename.find_last_of('.'));
-    ofstream objFile(baseFilename + ".obj");
-    ofstream penFile(baseFilename + ".pen");
+    string objFilename = getOutFileName(filename, ".obj");
+    string penFilename = getOutFileName(filename, ".pen");
 
-    map<string, SymbolInfo> symbolTable; // Tabela de símbolos
+    ofstream objFile(objFilename);
+    ofstream penFile(penFilename);
+
+    map<string, SymbolInfo> symbolTable;  // Tabela de símbolos
     int locationCounter = 0;
     string line;
 
@@ -35,13 +36,11 @@ void runAssembler(const string& filename) {
         // TODO: Analisar a linha (separar rotulo, instrucao, operandos)
         // TODO: Atualizar tabela de simbolos. Se necessário, atualizar a lista de pendências
         // TODO: Gerar codigo de maquina parcial.
-        // TODO: Atualizar lista dependência no buffer do .pen e no buffer do .obj -> 
+        // TODO: Atualizar lista dependência no buffer do .pen e no buffer do .obj ->
         // Substituir lista de pendência pela definição só no segundo buffer
-        
-        
     }
     // TODO: Lógica symbol not defined
-    
+
     // TODO: Escrever o codigo de maquina final em uma unica linha no .obj e no .pen
 
     cout << "Montagem concluida. arquivos gerados: " << baseFilename << ".obj e " << baseFilename << ".pen" << endl;

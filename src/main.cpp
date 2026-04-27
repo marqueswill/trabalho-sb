@@ -1,6 +1,7 @@
+#include <windows.h>
+
 #include <iostream>
 #include <string>
-
 // Inclusão dos cabeçalhos dos módulos independentes
 #include "assembler.h"
 #include "preprocessor.h"
@@ -9,6 +10,9 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+
     // 1. Validação básica de argumentos da linha de comando
     if (argc != 2) {
         cerr << "Uso incorreto. Formato esperado: ./montador <arquivo>" << endl;

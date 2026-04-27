@@ -19,8 +19,8 @@ void runAssembler(const string& filename) {
 
     // Preparar os arquivos de saida (.obj e .pen)
     string baseFilename = filename.substr(0, filename.find_last_of('.'));
-    string objFilename = baseFilename + ".obj";
-    string penFilename = baseFilename + ".pen";
+    string objFilename =getOutFileName(filename, ".obj");
+    string penFilename = getOutFileName(filename, ".pen");
 
     ofstream objFile(objFilename);
     ofstream penFile(penFilename);

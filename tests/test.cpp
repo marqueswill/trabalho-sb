@@ -4,13 +4,13 @@
 #include <string>
 
 #include "assembler.h"
+#include "auxiliar.h"
 #include "preprocessor.h"
 
 using namespace std;
 
 // Lê dois arquivos inteiros para a memória e verifica se são idênticos.
 bool compareFiles(const string& generatedFile, const string& expectedFile) {
-    
     ifstream fGen(generatedFile);
     ifstream fExp(expectedFile);
 
@@ -37,17 +37,19 @@ bool runTestCase(const string& testName,
     // 1. Executar Pré-processador
     runPreprocessor(inputAsm);
     string baseName = inputAsm.substr(0, inputAsm.find_last_of('.'));
-    string generatedPre = baseName + ".pre";
+    string generatedPre = getOutFileName(inputAsm, ".pre");
 
     // 2. Executar Montador
     runAssembler(generatedPre);
-    string generatedObj = baseName + ".obj";
-    string generatedPen = baseName + ".pen";
+    string generatedObj = getOutFileName(inputAsm, ".obj");
+    string generatedPen = getOutFileName(inputAsm, ".pen");
 
     // 3. Comparar todos os resultados
     bool passedPre = compareFiles(generatedPre, expectedPre);
-    bool passedObj = compareFiles(generatedObj, expectedObj);
-    bool passedPen = compareFiles(generatedPen, expectedPen);
+    bool passedObj = false;
+    // compareFiles(generatedObj, expectedObj);
+    bool passedPen = false;
+    // compareFiles(generatedPen, expectedPen);
 
     if (passedPre && passedObj && passedPen) {
         cout << "  -> \033[1;32mPASSOU\033[0m" << endl;  // Imprime verde
@@ -86,10 +88,10 @@ bool runTestCase(const string& testName,
 
 bool testEx1() {
     return runTestCase("Exemplo Base (ex1.asm)",
-                       "../examples/ex1.asm",
-                       "../expected/ex1.pre",
-                       "../expected/ex1.obj",
-                       "../expected/ex1.pen");
+                       "examples/ex1.asm",
+                       "expected/ex1.pre",
+                       "expected/ex1.obj",
+                       "expected/ex1.pen");
 }
 
 // =====================================================================

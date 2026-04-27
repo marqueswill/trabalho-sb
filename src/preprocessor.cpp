@@ -5,6 +5,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "auxiliar.h"
+
+
 
 using namespace std;
 
@@ -16,9 +19,8 @@ void runPreprocessor(const string& filename) {
         return;
     }
 
-    // 2. Preparar o nome do arquivo de saida (.pre)
-    string baseFilename = filename.substr(0, filename.find_last_of('.'));
-    string outFilename = baseFilename + ".pre";  // TODO: salvar na pasta outputs
+    // 2. Preparar o arquivo de saida (.pre)
+    string outFilename = getOutFileName(filename, ".pre");
     ofstream outputFile(outFilename);
 
     if (!outputFile.is_open()) {

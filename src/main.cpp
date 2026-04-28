@@ -1,4 +1,8 @@
+#ifdef _WIN32
 #include <windows.h>
+#else
+#include <unistd.h>  // Equivalente comum no Linux para certas funções
+#endif
 
 #include <iostream>
 #include <string>
@@ -10,8 +14,10 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    SetConsoleOutputCP(CP_UTF8);
-    SetConsoleCP(CP_UTF8);
+    #ifdef _WIN32
+        SetConsoleOutputCP(CP_UTF8);
+        SetConsoleCP(CP_UTF8);
+    #endif
 
     // 1. Validação básica de argumentos da linha de comando
     if (argc != 2) {

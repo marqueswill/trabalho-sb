@@ -73,7 +73,7 @@ void runPreprocessor(const string& filename) {
     // TODO: Escrever sectionText
     // TODO: Escrever sectionData
 
-    cout << "Pre-processamento concluido. arquivo gerado: " << outFilename << endl;
+    cout << "   Pre-processamento concluido. arquivo gerado: " << outFilename << endl;
 
     inputFile.close();
     outputFile.close();

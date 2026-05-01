@@ -10,17 +10,17 @@
 
 using namespace std;
 
-void runAssembler(const string& filename) {
-    ifstream inputFile(filename);
+void runAssembler(const string& filename, string inputFolder, string outputFolder) {
+    string preFilePath = inputFolder + filename + ".pre";
+    ifstream inputFile(preFilePath);
     if (!inputFile.is_open()) {
-        cerr << "Erro: Nao foi possivel abrir o arquivo " << filename << endl;
+        cerr << "Erro: Nao foi possivel abrir o arquivo " << preFilePath << endl;
         return;
     }
 
     // Preparar os arquivos de saida (.obj e .pen)
-    string baseFilename = filename.substr(0, filename.find_last_of('.'));
-    string objFilename = getOutFileName(filename, ".obj");
-    string penFilename = getOutFileName(filename, ".pen");
+    string objFilename = outputFolder + filename + ".obj";
+    string penFilename = outputFolder + filename + ".pen";
 
     ofstream objFile(objFilename);
     ofstream penFile(penFilename);
@@ -43,7 +43,7 @@ void runAssembler(const string& filename) {
 
     // TODO: Escrever o codigo de maquina final em uma unica linha no .obj e no .pen
 
-    cout << "   Montagem concluida. arquivos gerados: " << baseFilename << ".obj e " << baseFilename << ".pen" << endl;
+    cout << "   Montagem concluida. arquivos gerados: " << objFilename << " e " << penFilename << endl;
 
     inputFile.close();
     objFile.close();

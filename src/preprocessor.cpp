@@ -5,26 +5,26 @@
 #include <iostream>
 #include <string>
 #include <vector>
+
 #include "auxiliar.h"
-
-
 
 using namespace std;
 
-void runPreprocessor(const string& filename) {
+void runPreprocessor(const string& filename, string inputFolder,string outputFolder) {
     // 1. Abrir o arquivo .asm de entrada
-    ifstream inputFile(filename);
+    string asmFilePath = inputFolder+ filename + ".asm";
+    ifstream inputFile(asmFilePath);
     if (!inputFile.is_open()) {
-        cerr << "Erro: Nao foi possivel abrir o arquivo " << filename << endl;
+        cerr << "Erro: Nao foi possivel abrir o arquivo " << asmFilePath << endl;
         return;
     }
 
     // 2. Preparar o arquivo de saida (.pre)
-    string outFilename = getOutFileName(filename, ".pre");
-    ofstream outputFile(outFilename);
+    string preFilePath = outputFolder + filename + ".pre";
+    ofstream outputFile(preFilePath);
 
     if (!outputFile.is_open()) {
-        cerr << "Erro: Nao foi possivel criar o arquivo " << outFilename << endl;
+        cerr << "Erro: Nao foi possivel criar o arquivo " << preFilePath << endl;
         inputFile.close();
         return;
     }
@@ -73,7 +73,7 @@ void runPreprocessor(const string& filename) {
     // TODO: Escrever sectionText
     // TODO: Escrever sectionData
 
-    cout << "   Pre-processamento concluido. arquivo gerado: " << outFilename << endl;
+    cout << "   Pre-processamento concluido. arquivo gerado: " << preFilePath << endl;
 
     inputFile.close();
     outputFile.close();

@@ -38,7 +38,6 @@ void loadToMemory(const string& filename, vector<int>& memory) {
     }
 }
 
-// TODO: Fazer um getter
 bool getOperandAddr(int pc, const vector<int>& memory, int& outAddr) {
     int opcode = memory[pc];
     string instructionName = getInstructionName(opcode);

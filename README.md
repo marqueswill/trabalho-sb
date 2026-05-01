@@ -35,13 +35,16 @@ Para arquivo específico:
 Ou então, se deseja compilar manualmente, primeiro compile o arquivo main:
 
 ```
-g++ -Wall -std=c++11 src/main.cpp src/preprocessor.cpp src/assembler.cpp src/simulator.cpp src/auxiliar.cpp -o ./montador
+g++ -Wall -std=c++11 src/main.cpp src/preprocessor.cpp src/assembler.cpp src/simulator.cpp -o ./montador
 ```
 E então execute o arquivo gerado:
 ```
-./build/montador examples/ex1.asm
+./montador tests/examples/ex1.asm
 ```
 
+
+#### Teste manual
+g++ -Wall -std=c++11 -I./src tests/test.cpp src/preprocessor.cpp src/assembler.cpp src/simulator.cpp src/auxiliar.cpp -o run_tests
 
 
 

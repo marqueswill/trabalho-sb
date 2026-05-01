@@ -9,6 +9,10 @@
 #include "preprocessor.h"
 
 using namespace std;
+struct TestCase {
+    string title;
+    string baseName;  // ex: "fibo", "fat", "ex1"
+};
 
 // Lê dois arquivos inteiros para a memória e verifica se são idênticos.
 bool compareFiles(const string& generatedFile, const string& expectedFile) {
@@ -29,23 +33,28 @@ bool compareFiles(const string& generatedFile, const string& expectedFile) {
 }
 
 // Executa um teste completo (Pré-processador + Montador) e retorna se passou (true) ou falhou (false)
-bool runTestCase(const string& testName,
-                 const string& inputAsm,
-                 const string& expectedPre,
-                 const string& expectedObj,
-                 const string& expectedPen) {
+bool runTestCase(const string& testName) {
     cout << "[TESTE] Executando: " << testName << "..." << endl;
 
+    string exampleFolder = "tests/examples";
+    string expectedFolder = "tests/expected";
+    string outputFolder = "tests/outputs/";
+
     // 1. Executar Pré-processador
-    // runPreprocessor(inputAsm);
-    string generatedPre = getOutFileName(inputAsm, ".pre");
+    runPreprocessor(testName, exampleFolder, outputFolder);
 
     // 2. Executar Montador
-    // runAssembler(generatedPre);
-    string generatedObj = getOutFileName(inputAsm, ".obj");
-    string generatedPen = getOutFileName(inputAsm, ".pen");
+    runAssembler(testName, outputFolder, outputFolder);
 
     // 3. Comparar todos os resultados
+    string generatedPre = outputFolder + testName + ".pre";
+    string generatedObj = outputFolder + testName + ".obj";
+    string generatedPen = outputFolder + testName + ".pen";
+
+    string expectedPre = expectedFolder + testName + ".pre";
+    string expectedObj = expectedFolder + testName + ".obj";
+    string expectedPen = expectedFolder + testName + ".pen";
+
     bool passedPre = compareFiles(generatedPre, expectedPre);
     bool passedObj = compareFiles(generatedObj, expectedObj);
     bool passedPen = compareFiles(generatedPen, expectedPen);
@@ -65,35 +74,6 @@ bool runTestCase(const string& testName,
 }
 
 // =====================================================================
-// CASOS DE TESTE
-// =====================================================================
-// Retornam o resultado de runTestCase para contabilizar na main
-
-bool testFibo() {
-    return runTestCase("Formatacao Extrema",
-                       "../examples/fibo.asm",
-                       "../expected/fibo.pre",
-                       "../expected/fibo.obj",
-                       "../expected/fibo.pen");
-}
-
-bool testFat() {
-    return runTestCase("Inversao de Secoes",
-                       "../examples/fat.asm",
-                       "../expected/fat.pre",
-                       "../expected/fat.obj",
-                       "../expected/fat.pen");
-}
-
-bool testEx1() {
-    return runTestCase("Exemplo Base (ex1.asm)",
-                       "tests/examples/ex1.asm",
-                       "tests/expected/ex1.pre",
-                       "tests/expected/ex1.obj",
-                       "tests/expected/ex1.pen");
-}
-
-// =====================================================================
 // MAIN DO TESTADOR
 // =====================================================================
 int main() {
@@ -102,20 +82,18 @@ int main() {
     cout << "========================================" << endl
          << endl;
 
-    vector<function<bool()>> tests = {
-        testEx1,
-        testFat,
-        testFibo,
-    };
+    vector<TestCase> tests = {
+        {"Exemplo Base", "ex1"},
+        {"Inversao de Secoes", "fat"},
+        {"Formatacao Extrema", "fibo"}};
 
     int totalTests = tests.size();
     int passedTests = 0;
 
-    // Executar bateria de testes (usando as funções encapsuladas)
-    for (int i = 0; i < totalTests; i++) {
-        if (tests[i]()) {
-            passedTests++;
-        };
+    // Executar bateria de testes
+    for (const auto& tc : tests) {
+        bool result = runTestCase(tc.baseName);
+        if (result) passedTests++;
     }
 
     cout << endl

@@ -50,8 +50,8 @@ map<string, DirectiveInfo> getDirectiveTable() {
     };
 }
 
-// Assume que o output é sempre no root
-string getOutFileName(const string& filename, const string& extension) {
+
+string getOutFileName(const string& filename, const string& extension, string outputFolder ="") {
     size_t lastSlashPos = filename.find_last_of("/\\");
     size_t startPos = (lastSlashPos == string::npos) ? 0 : lastSlashPos + 1;
 
@@ -59,6 +59,6 @@ string getOutFileName(const string& filename, const string& extension) {
     string baseName = filename.substr(startPos, filename.length() - startPos - 4);
 
     // Constrói o novo caminho
-    string outFilename = baseName + extension;
+    string outFilename = outputFolder + baseName + extension;
     return outFilename;
 };

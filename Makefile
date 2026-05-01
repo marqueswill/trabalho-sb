@@ -23,9 +23,9 @@ all: $(MAIN_EXEC) $(TEST_EXEC)
 FILE ?= ex1
 
 run: $(MAIN_EXEC)
-	./$(MAIN_EXEC) $(EXAMPLES_DIR)/$(FILE).asm
-	./$(MAIN_EXEC) $(OUTPUT_DIR)/$(FILE).pre
-	./$(MAIN_EXEC) $(OUTPUT_DIR)/$(FILE).obj
+	./$(MAIN_EXEC) $(FILE).asm
+	./$(MAIN_EXEC) $(FILE).pre
+	./$(MAIN_EXEC) $(FILE).obj
 
 # Atalho para rodar os testes
 test: $(TEST_EXEC)

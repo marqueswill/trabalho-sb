@@ -1,4 +1,5 @@
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -11,6 +12,7 @@ using namespace std;
 
 // Lê dois arquivos inteiros para a memória e verifica se são idênticos.
 bool compareFiles(const string& generatedFile, const string& expectedFile) {
+    // cout << "   Comparando: " << generatedFile << " com " << expectedFile << endl;
     ifstream fGen(generatedFile);
     ifstream fExp(expectedFile);
 
@@ -35,30 +37,29 @@ bool runTestCase(const string& testName,
     cout << "[TESTE] Executando: " << testName << "..." << endl;
 
     // 1. Executar Pré-processador
-    runPreprocessor(inputAsm);
-    string baseName = inputAsm.substr(0, inputAsm.find_last_of('.'));
+    // runPreprocessor(inputAsm);
     string generatedPre = getOutFileName(inputAsm, ".pre");
 
     // 2. Executar Montador
-    runAssembler(generatedPre);
+    // runAssembler(generatedPre);
     string generatedObj = getOutFileName(inputAsm, ".obj");
     string generatedPen = getOutFileName(inputAsm, ".pen");
 
     // 3. Comparar todos os resultados
     bool passedPre = compareFiles(generatedPre, expectedPre);
-    bool passedObj = false;
-    // compareFiles(generatedObj, expectedObj);
-    bool passedPen = false;
-    // compareFiles(generatedPen, expectedPen);
+    bool passedObj = compareFiles(generatedObj, expectedObj);
+    bool passedPen = compareFiles(generatedPen, expectedPen);
 
     if (passedPre && passedObj && passedPen) {
-        cout << "  -> \033[1;32mPASSOU\033[0m" << endl;  // Imprime verde
+        cout << "  -> \033[1;32mPASSOU\033[0m" << endl
+             << endl;  // Imprime verde
         return true;
     } else {
         cout << "  -> \033[1;31mFALHOU\033[0m. Divergencias ou arquivos ausentes:" << endl;  // Imprime vermelho
         if (!passedPre) cout << "     [x] Diferenca no arquivo PRE-PROCESSADO: " << generatedPre << endl;
         if (!passedObj) cout << "     [x] Diferenca no arquivo OBJETO: " << generatedObj << endl;
         if (!passedPen) cout << "     [x] Diferenca no arquivo PENDENCIAS: " << generatedPen << endl;
+        cout << endl;
         return false;
     }
 }
@@ -68,23 +69,21 @@ bool runTestCase(const string& testName,
 // =====================================================================
 // Retornam o resultado de runTestCase para contabilizar na main
 
-// bool testFormatting() {
-//     // Cenário: Arquivo cheio de espaços duplos, tabs e minúsculas.
-//     return runTestCase("Formatacao Extrema",
-//                        "../examples/test_format.asm",
-//                        "../expected/test_format.pre",
-//                        "../expected/test_format.obj",
-//                        "../expected/test_format.pen");
-// }
+bool testFibo() {
+    return runTestCase("Formatacao Extrema",
+                       "../examples/fibo.asm",
+                       "../expected/fibo.pre",
+                       "../expected/fibo.obj",
+                       "../expected/fibo.pen");
+}
 
-// bool testSectionOrder() {
-//     // Cenário: SECTION DATA vem antes da SECTION TEXT no .asm
-//     return runTestCase("Inversao de Secoes",
-//                        "../examples/test_sections.asm",
-//                        "../expected/test_sections.pre",
-//                        "../expected/test_sections.obj",
-//                        "../expected/test_sections.pen");
-// }
+bool testFat() {
+    return runTestCase("Inversao de Secoes",
+                       "../examples/fat.asm",
+                       "../expected/fat.pre",
+                       "../expected/fat.obj",
+                       "../expected/fat.pen");
+}
 
 bool testEx1() {
     return runTestCase("Exemplo Base (ex1.asm)",
@@ -103,13 +102,21 @@ int main() {
     cout << "========================================" << endl
          << endl;
 
-    int totalTests = 1;  // ATUALIZAR MANUALMENTE!!
+    vector<function<bool()>> tests = {
+        testEx1,
+        testFat,
+        testFibo,
+    };
+
+    int totalTests = tests.size();
     int passedTests = 0;
 
     // Executar bateria de testes (usando as funções encapsuladas)
-    if (testEx1()) passedTests++;
-    // if (testFormatting()) passedTests++;
-    // if (testSectionOrder()) passedTests++;
+    for (int i = 0; i < totalTests; i++) {
+        if (tests[i]()) {
+            passedTests++;
+        };
+    }
 
     cout << endl
          << "========================================" << endl;

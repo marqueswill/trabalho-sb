@@ -7,6 +7,9 @@
 *.o
 *.obj
 
+!tests/examples/*.obj
+!tests/examples/*.o
+
 # Precompiled Headers
 *.gch
 *.pch

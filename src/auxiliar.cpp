@@ -1,9 +1,11 @@
 
 #include "auxiliar.h"
 
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
+
 using namespace std;
 
 map<string, InstructionInfo> getInstructionTable() {
@@ -35,6 +37,7 @@ map<string, DirectiveInfo> getDirectiveTable() {
     };
 }
 
+// Assume que o output é sempre no root
 string getOutFileName(const string& filename, const string& extension) {
     size_t lastSlashPos = filename.find_last_of("/\\");
     size_t startPos = (lastSlashPos == string::npos) ? 0 : lastSlashPos + 1;
@@ -42,8 +45,7 @@ string getOutFileName(const string& filename, const string& extension) {
     // Pega o nome do arquivo ignorando os 4 últimos caracteres (ex: ".asm")
     string baseName = filename.substr(startPos, filename.length() - startPos - 4);
 
-    // Constrói o novo caminho forçando a pasta "outputs/"
-    string outFilename = "tests/outputs/" + baseName + extension;
-
+    // Constrói o novo caminho
+    string outFilename = baseName + extension;
     return outFilename;
 };

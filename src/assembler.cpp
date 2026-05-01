@@ -43,7 +43,7 @@ void runAssembler(const string& filename) {
 
     // TODO: Escrever o codigo de maquina final em uma unica linha no .obj e no .pen
 
-    cout << "Montagem concluida. arquivos gerados: " << baseFilename << ".obj e " << baseFilename << ".pen" << endl;
+    cout << "   Montagem concluida. arquivos gerados: " << baseFilename << ".obj e " << baseFilename << ".pen" << endl;
 
     inputFile.close();
     objFile.close();

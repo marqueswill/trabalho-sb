@@ -5,22 +5,22 @@
 #include <string>
 #include <vector>
 
+#include "auxiliar.h"
+
 using namespace std;
 
 static bool validAddress(int addr, const vector<int>& memory) {
     return addr >= 0 && addr < static_cast<int>(memory.size());
 }
 
-void runSimulator(const string& filename) {
+void loadToMemory(const string& filename, vector<int>& memory) {
     ifstream inputFile(filename);
     if (!inputFile.is_open()) {
         cerr << "Erro: Nao foi possivel abrir o arquivo " << filename << endl;
         return;
     }
 
-    vector<int> memory;
     int value;
-
     while (inputFile >> value) {
         memory.push_back(value);
     }
@@ -32,11 +32,42 @@ void runSimulator(const string& filename) {
         return;
     }
 
+    if (memory.size() > MAX_MEMORY) {
+        cerr << "Erro: Arquivo objeto excede a memoria de 16 bits." << endl;
+        return;
+    }
+}
+
+// TODO: Fazer um getter
+bool getOperandAddr(int pc, const vector<int>& memory, int& outAddr) {
+    int opcode = memory[pc];
+    string instructionName = getInstructionName(opcode);
+    cout << "Realizando uma operação de " << instructionName << endl;
+    if (!validAddress(pc + 1, memory)) {  // Verifica se o endereço passado é válido
+        cerr << "Erro: operando ausente em " << instructionName << "." << endl;
+        return false;
+    }
+
+    outAddr = memory[pc + 1]; // Altera a variável original
+
+    if (!validAddress(outAddr, memory)) {  // Verifica se o endereço lido é valido
+        cerr << "Erro: endereco invalido em " << instructionName << ": " << outAddr << endl;
+        return false;
+    }
+
+    return true;
+}
+
+void runSimulator(const string& filename) {
+    vector<int> memory;
+    loadToMemory(filename, memory);
+
     int pc = 0;
     int acc = 0;
+    int addr;
     bool isRunning = true;
 
-    //cout << "--- Iniciando Simulacao ---" << endl;
+    // cout << "--- Iniciando Simulacao ---" << endl;
 
     while (isRunning) {
         if (!validAddress(pc, memory)) {
@@ -47,7 +78,7 @@ void runSimulator(const string& filename) {
         int opcode = memory[pc];
 
         switch (opcode) {
-            case 1: { // ADD
+            case 1: {  // ADD
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em ADD." << endl;
                     return;
@@ -62,7 +93,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 2: { // SUB
+            case 2: {  // SUB
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em SUB." << endl;
                     return;
@@ -77,7 +108,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 3: { // MUL
+            case 3: {  // MUL
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em MUL." << endl;
                     return;
@@ -92,7 +123,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 4: { // DIV
+            case 4: {  // DIV
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em DIV." << endl;
                     return;
@@ -102,6 +133,7 @@ void runSimulator(const string& filename) {
                     cerr << "Erro: endereco invalido em DIV: " << addr << endl;
                     return;
                 }
+
                 if (memory[addr] == 0) {
                     cerr << "Erro: divisao por zero." << endl;
                     return;
@@ -111,7 +143,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 5: { // JMP
+            case 5: {  // JMP
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em JMP." << endl;
                     return;
@@ -125,7 +157,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 6: { // JMPN
+            case 6: {  // JMPN
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em JMPN." << endl;
                     return;
@@ -143,7 +175,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 7: { // JMPP
+            case 7: {  // JMPP
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em JMPP." << endl;
                     return;
@@ -161,7 +193,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 8: { // JMPZ
+            case 8: {  // JMPZ
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em JMPZ." << endl;
                     return;
@@ -179,7 +211,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 9: { // COPY
+            case 9: {  // COPY
                 if (!validAddress(pc + 1, memory) || !validAddress(pc + 2, memory)) {
                     cerr << "Erro: operandos ausentes em COPY." << endl;
                     return;
@@ -197,7 +229,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 10: { // LOAD
+            case 10: {  // LOAD
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em LOAD." << endl;
                     return;
@@ -212,7 +244,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 11: { // STORE
+            case 11: {  // STORE
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em STORE." << endl;
                     return;
@@ -227,7 +259,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 12: { // INPUT
+            case 12: {  // INPUT
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em INPUT." << endl;
                     return;
@@ -245,7 +277,7 @@ void runSimulator(const string& filename) {
                 break;
             }
 
-            case 13: { // OUTPUT
+            case 13: {  // OUTPUT
                 if (!validAddress(pc + 1, memory)) {
                     cerr << "Erro: operando ausente em OUTPUT." << endl;
                     return;
@@ -255,12 +287,12 @@ void runSimulator(const string& filename) {
                     cerr << "Erro: endereco invalido em OUTPUT: " << addr << endl;
                     return;
                 }
-                cout << memory[addr] << endl;
+                cout << memory[addr];
                 pc += 2;
                 break;
             }
 
-            case 14: { // STOP
+            case 14: {  // STOP
                 isRunning = false;
                 break;
             }
@@ -272,5 +304,5 @@ void runSimulator(const string& filename) {
         }
     }
 
-    //cout << "--- Simulacao Finalizada ---" << endl;
+    // cout << "--- Simulacao Finalizada ---" << endl;
 }

@@ -18,7 +18,6 @@ struct SymbolInfo {
 
 std::map<std::string, InstructionInfo> getInstructionTable();
 std::map<std::string, DirectiveInfo> getDirectiveTable();
-std::string getOutFileName(const std::string& filename, const std::string& extension);
 std::string getInstructionName(int opcode);
 
 

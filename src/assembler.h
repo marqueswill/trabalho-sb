@@ -7,5 +7,5 @@
  * Lê um arquivo .pre e gera os arquivos .obj (código de máquina) e .pen (pendências).
  * Implementa a lógica de montagem e tradução de opcodes/diretivas.
  */
-void runAssembler(const std::string& filename, string inputFolder = "", string outputFolder = "");
+void runAssembler(const std::string& filename, std::string inputFolder = "", std::string outputFolder = "");
 #endif

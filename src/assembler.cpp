@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void runAssembler(const string& filename, string inputFolder = "", string outputFolder = "") {
+void runAssembler(const string& filename, string inputFolder, string outputFolder) {
     string preFilePath = inputFolder + filename + ".pre";
     ifstream inputFile(preFilePath);
     if (!inputFile.is_open()) {
@@ -43,7 +43,7 @@ void runAssembler(const string& filename, string inputFolder = "", string output
 
     // TODO: Escrever o codigo de maquina final em uma unica linha no .obj e no .pen
 
-    cout << "   Montagem concluida. arquivos gerados: " << filename << ".obj e " << filename << ".pen" << endl;
+    cout << "   Montagem concluida. arquivos gerados: " << objFilename << " e " << penFilename << endl;
 
     inputFile.close();
     objFile.close();

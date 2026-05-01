@@ -10,9 +10,9 @@
 
 using namespace std;
 
-void runPreprocessor(const string& filename, string inputFolder="",string outputFolder = "") {
+void runPreprocessor(const string& filename, string inputFolder,string outputFolder) {
     // 1. Abrir o arquivo .asm de entrada
-    string asmFilePath = filename + ".asm";
+    string asmFilePath = inputFolder+ filename + ".asm";
     ifstream inputFile(asmFilePath);
     if (!inputFile.is_open()) {
         cerr << "Erro: Nao foi possivel abrir o arquivo " << asmFilePath << endl;

@@ -36,8 +36,8 @@ bool compareFiles(const string& generatedFile, const string& expectedFile) {
 bool runTestCase(const string& testName) {
     cout << "[TESTE] Executando: " << testName << "..." << endl;
 
-    string exampleFolder = "tests/examples";
-    string expectedFolder = "tests/expected";
+    string exampleFolder = "tests/examples/";
+    string expectedFolder = "tests/expected/";
     string outputFolder = "tests/outputs/";
 
     // 1. Executar Pré-processador

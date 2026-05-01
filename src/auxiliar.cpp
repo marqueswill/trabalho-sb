@@ -51,14 +51,3 @@ map<string, DirectiveInfo> getDirectiveTable() {
 }
 
 
-string getOutFileName(const string& filename, const string& extension, string outputFolder ="") {
-    size_t lastSlashPos = filename.find_last_of("/\\");
-    size_t startPos = (lastSlashPos == string::npos) ? 0 : lastSlashPos + 1;
-
-    // Pega o nome do arquivo ignorando os 4 últimos caracteres (ex: ".asm")
-    string baseName = filename.substr(startPos, filename.length() - startPos - 4);
-
-    // Constrói o novo caminho
-    string outFilename = outputFolder + baseName + extension;
-    return outFilename;
-};

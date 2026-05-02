@@ -43,7 +43,6 @@ SymbolTable getSymbolTable() {
 }
 
 string getInstructionName(int opcode) {
-    // Array estático: definido apenas uma vez na memória
     static const string names[] = {
         "", "ADD", "SUB", "MULT", "DIV", "JMP", "JMPN",
         "JMPP", "JMPZ", "COPY", "LOAD", "STORE", "INPUT",
@@ -52,21 +51,35 @@ string getInstructionName(int opcode) {
     if (opcode >= 1 && opcode <= 14) {
         return names[opcode];
     }
+
     return "UNKNOWN";
-}
-
-void addSymbol(SymbolTable& symbolTable, string symbol, int address) {
-    // Se símbolo existe
-    //// Se ele foi definido -> Faço nada
-    //// Se não foi definido -> Adiciono pendência
-
-    // Se símbolo não existe
-    //// Se não foi definido -> Adiciono pendência
 }
 
 void setSymbol(SymbolTable& symbolTable, string symbol, int address) {
     // Erro redefinição de símbolo
+    if (symbolTable[symbol].isDefined) {
+        cerr << "Erro: Redefinição de símbolo." << endl;
+        return;
+    }
+
+    symbolTable[symbol].address = address;
+    symbolTable[symbol].isDefined = true;
 };
+
+void addSymbol(SymbolTable& symbolTable, string symbol, int address) {
+    auto info = symbolTable.find(symbol);
+
+    // Se símbolo existe
+    if (info != symbolTable.end()) {
+        if (!info->second.isDefined) {  // Símbolo existe, mas não foi definido -> Adiciono pendência
+            info->second.pendingReferences.push_back(address);
+        }
+    } else {  // Símbolo não existe -> Adiciono símbolo e pendência
+        symbolTable[symbol].address = 0;
+        symbolTable[symbol].isDefined = false;
+        symbolTable[symbol].pendingReferences.push_back(address);
+    }
+}
 
 bool isDefined(SymbolTable& symbolTable, string symbol) {
     return symbolTable[symbol].isDefined;

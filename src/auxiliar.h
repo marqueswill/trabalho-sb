@@ -13,8 +13,7 @@ struct DirectiveInfo {
     int size;
 };
 struct SymbolInfo {
-    string symbol = "";
-    int address = -1;
+    int address;
     bool isDefined = false;
     vector<int> pendingReferences;
 };
@@ -36,18 +35,21 @@ using SymbolTable = map<string, SymbolInfo>;
 using InstructionTable = map<string, InstructionInfo>;
 using DirectiveTable = map<string, DirectiveInfo>;
 
+// Tabelas
 InstructionTable getInstructionTable();
+string getInstructionName(int opcode);
 DirectiveTable getDirectiveTable();
 SymbolTable getSymbolTable();
-string getInstructionName(int opcode);
+
+// Tokenização
+InstructionTokens parseTextLine(const string&);
+DataTokens parseDataLine(const string&);
 
 void addSymbol(SymbolTable& symbolTable, const string symbol, int address);  // Adiciona símbolo na tabela
 void setSymbol(SymbolTable& symbolTable, const string symbol, int address);  // Define o enderço de um símbolo
 bool isDefined(SymbolTable& symbolTable, const string symbol);
 bool isDirective(DirectiveTable directiveTable, string operation);
 
-InstructionTokens parseTextLine(const string&);
-DataTokens parseDataLine(const string&);
 constexpr int MAX_MEMORY = 65536;
 
 #endif

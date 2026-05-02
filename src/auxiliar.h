@@ -19,16 +19,16 @@ struct SymbolInfo {
 };
 
 struct InstructionTokens {
-    string label = "";
+    string label;
     string operation;
-    string addr1 = "";
-    string addr2 = "";
+    string addr1;
+    string addr2;
 };
 
 struct DataTokens {
     string label;
     string directive;
-    int value = 0;  // CONST
+    int value; 
 };
 
 using SymbolTable = map<string, SymbolInfo>;
@@ -49,7 +49,6 @@ void addSymbol(SymbolTable& symbolTable, const string symbol, int address);  // 
 void setSymbol(SymbolTable& symbolTable, const string symbol, int address);  // Define o enderço de um símbolo
 bool isDefined(SymbolTable& symbolTable, const string symbol);
 bool isDirective(DirectiveTable directiveTable, string operation);
-
 
 constexpr int MAX_MEMORY = 65536;
 

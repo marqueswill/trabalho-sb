@@ -79,7 +79,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
         }
 
         if (inTextSection) {
-            InstructionTokens tokens = parseTextLine(line);  // Assumo que não há erro sintáticos ou léxicos
+            InstructionTokens tokens = splitTextLine(line);  // Assumo que não há erro sintáticos ou léxicos
 
             if (!tokens.label.empty()) {                                // Se encontrar uma label
                 setSymbol(symbolTable, tokens.label, locationCounter);  // Define a label
@@ -109,7 +109,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
 
         // DATA SECTION -> assume que o pré processador colocou o DATA por último
         if (inDataSection) {
-            DataTokens tokens = parseDataLine(line);
+            DataTokens tokens = splitDataLine(line);
 
             DirectiveInfo dirInfo = directiveTable[tokens.label];
             string directive = tokens.directive;

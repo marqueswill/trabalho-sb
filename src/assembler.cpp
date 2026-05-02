@@ -103,18 +103,17 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
         // DATA SECTION -> assume que o pré processador colocou o DATA por último
         if (inDataSection) {
             DataTokens tokens = splitDataLine(line);
-
-            DirectiveInfo dirInfo = directiveTable[tokens.label];
             string directive = tokens.directive;
+            DirectiveInfo dirInfo = directiveTable[directive];
             if (directive == "SPACE") {
-                setSymbol(symbolTable, tokens.label, locationCounter);  // Salva na tabela
-                buffer.push_back(0);                                    // Escreve endereço
+                setSymbol(symbolTable, tokens.label, locationCounter);  // Define na tabela
+                buffer.push_back(0);                                    // Escreve endereço no buffer
             } else if (directive == "CONST") {
-                setSymbol(symbolTable, tokens.label, locationCounter);  // Salva na tabela
-                buffer.push_back(tokens.value);                         // Escreve endereço
+                setSymbol(symbolTable, tokens.label, locationCounter);  // Define na tabela
+                buffer.push_back(tokens.value);                         // Escreve endereço no buffer
             }
 
-            // Atualiza o buffer substituindo valor definido
+            // Atualiza o buffer em retrocesso usando valor definido
             resolvePendencies(buffer, symbolTable, tokens.label);
             locationCounter += dirInfo.size;
         }

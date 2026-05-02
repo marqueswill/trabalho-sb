@@ -42,13 +42,14 @@ DirectiveTable getDirectiveTable();
 SymbolTable getSymbolTable();
 
 // Tokenização
-InstructionTokens parseTextLine(const string&);
-DataTokens parseDataLine(const string&);
+InstructionTokens splitTextLine(const string&);
+DataTokens splitDataLine(const string&);
 
 void addSymbol(SymbolTable& symbolTable, const string symbol, int address);  // Adiciona símbolo na tabela
 void setSymbol(SymbolTable& symbolTable, const string symbol, int address);  // Define o enderço de um símbolo
 bool isDefined(SymbolTable& symbolTable, const string symbol);
 bool isDirective(DirectiveTable directiveTable, string operation);
+
 
 constexpr int MAX_MEMORY = 65536;
 

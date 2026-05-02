@@ -13,6 +13,8 @@ using namespace std;
 void resolvePendencies(vector<int> buffer, SymbolTable& symbolTable, const string& symbol) {
     if (symbolTable.find(symbol) == symbolTable.end()) {
         // Símbolo não definido
+        cerr << "Erro: Não foi possível definir o símbolo: " << symbol << "." << endl;
+        return;
     }
 
     SymbolInfo info = symbolTable[symbol];

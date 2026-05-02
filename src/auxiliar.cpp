@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -89,14 +90,37 @@ bool isDirective(DirectiveTable directiveTable, string operation) {
     return directiveTable.count(operation);
 }
 
-InstructionTokens parseTextLine(const string& line) {
-    InstructionTokens tokens;
-    // ... seu código de quebra de linha ...
+vector<string> splitBySpace(const string& line) {
+    vector<string> substrings;
+    istringstream stream(line);
+    string crrntWord;
+
+    while (stream >> crrntWord) {
+        substrings.push_back(crrntWord);
+    }
+
+    return substrings;
+}
+
+InstructionTokens splitTextLine(const string& line) {
+    InstructionTokens tokens = {"", "", "", ""};
+    vector<string> splitLine = splitBySpace(line);
+
+    if (splitLine.size() > 0) tokens.label = splitLine[0];
+    if (splitLine.size() > 1) tokens.operation = splitLine[1];
+    if (splitLine.size() > 2) tokens.addr1 = splitLine[2];
+    if (splitLine.size() > 3) tokens.addr2 = splitLine[3];
+
     return tokens;
 }
 
-DataTokens parseDataLine(const string& line) {
-    DataTokens tokens;
-    // ... seu código de quebra de linha ...
+DataTokens splitDataLine(const string& line) {
+    DataTokens tokens = {"", "", 0};
+    vector<string> splitLine = splitBySpace(line);
+
+    if (splitLine.size() > 0) tokens.label = splitLine[0];
+    if (splitLine.size() > 1) tokens.directive = splitLine[1];
+    if (splitLine.size() > 2) tokens.value = stoi(splitLine[2]);
+
     return tokens;
 }

@@ -39,13 +39,6 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
         return;
     }
 
-    // Preparar os arquivos de saida (.obj e .pen)
-    string objFilename = outputFolder + filename + ".obj";
-    string penFilename = outputFolder + filename + ".pen";
-
-    ofstream objFile(objFilename);
-    ofstream penFile(penFilename);
-
     // Preparar tabelas
     InstructionTable instructionTable = getInstructionTable();
     DirectiveTable directiveTable = getDirectiveTable();
@@ -129,6 +122,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
         break;
     }
 
+    // Verificações
     if (!hasTextSection) {
         cerr << "Erro: A seção TEXT ausente." << endl;
         return;
@@ -138,15 +132,38 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
         cerr << "Erro: A seção TEXT não possui a instrução STOP." << endl;
         return;
     }
+    inputFile.close();
 
     // TODO: Lógica symbol not defined -> Se depois de percorrer todas linhas
     // existir na tabela de simbolo alguem que não foi definido
+    for (auto const& pair : symbolTable) {
+        // pair.first é a chave (nome do símbolo), pair.second é o SymbolInfo
+        if (!pair.second.isDefined) {
+            cerr << "Erro Semântico: O símbolo '" << pair.first << "' foi usado, mas nunca foi definido." << endl;
+            return;
+        }
+    }
 
     // TODO: Escrever o codigo de maquina final em uma unica linha no .obj e no .pen
+    // Preparar os arquivos de saida (.obj e .pen)
+    string objFilename = outputFolder + filename + ".obj";
+    string penFilename = outputFolder + filename + ".pen";
 
-    cout << "   Montagem concluida. arquivos gerados: " << objFilename << " e " << penFilename << endl;
+    ofstream objFile(objFilename);
+    ofstream penFile(penFilename);
 
-    inputFile.close();
+    for (size_t i = 0; i < buffer.size(); i++) {
+        objFile << buffer[i];
+        penFile << buffer[i];
+
+        // Coloca um espaço depois do número, exceto se for o último
+        if (i != buffer.size() - 1) {
+            objFile << " ";
+            penFile << " ";
+        }
+    }
     objFile.close();
     penFile.close();
+
+    cout << "   Montagem concluida. arquivos gerados: " << objFilename << " e " << penFilename << endl;
 }

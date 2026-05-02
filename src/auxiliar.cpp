@@ -8,7 +8,7 @@
 
 using namespace std;
 
-map<string, InstructionInfo> getInstructionTable() {
+InstructionTable getInstructionTable() {
     return {
         {"ADD", {1, 2}},      // ACC <- ACC + mem(ADDR)
         {"SUB", {2, 2}},      // ACC <- ACC - mem(ADDR)
@@ -27,6 +27,21 @@ map<string, InstructionInfo> getInstructionTable() {
     };
 }
 
+DirectiveTable getDirectiveTable() {
+    return {
+        {"SPACE", {1}},    // Reserva 1 espaço de memória (inicializado com "00" no .obj)
+        {"CONST", {1}},    // Reserva 1 espaço de memória (preenchido com o valor passado)
+        {"SECTION", {0}},  // Não vai para a memória, serve apenas para organizar o código
+        {"EQU", {0}},      // Resolvido no pré-processador, não ocupa espaço na montagem
+        {"IF", {0}}        // Resolvido no pré-processador, não ocupa espaço na montagem
+    };
+}
+
+SymbolTable getSymbolTable() {
+    map<string, SymbolInfo> symbolTable;
+    return symbolTable;
+}
+
 string getInstructionName(int opcode) {
     // Array estático: definido apenas uma vez na memória
     static const string names[] = {
@@ -40,14 +55,35 @@ string getInstructionName(int opcode) {
     return "UNKNOWN";
 }
 
-map<string, DirectiveInfo> getDirectiveTable() {
-    return {
-        {"SPACE", {1}},    // Reserva 1 espaço de memória (inicializado com "00" no .obj)
-        {"CONST", {1}},    // Reserva 1 espaço de memória (preenchido com o valor passado)
-        {"SECTION", {0}},  // Não vai para a memória, serve apenas para organizar o código
-        {"EQU", {0}},      // Resolvido no pré-processador, não ocupa espaço na montagem
-        {"IF", {0}}        // Resolvido no pré-processador, não ocupa espaço na montagem
-    };
+void addSymbol(SymbolTable& symbolTable, string symbol, int address) {
+    // Se símbolo existe
+    //// Se ele foi definido -> Faço nada
+    //// Se não foi definido -> Adiciono pendência
+
+    // Se símbolo não existe
+    //// Se não foi definido -> Adiciono pendência
 }
 
+void setSymbol(SymbolTable& symbolTable, string symbol, int address) {
+    // Erro redefinição de símbolo
+};
 
+bool isDefined(SymbolTable& symbolTable, string symbol) {
+    return symbolTable[symbol].isDefined;
+}
+
+bool isDirective(DirectiveTable directiveTable, string operation) {
+    return directiveTable.count(operation);
+}
+
+InstructionTokens parseTextLine(const string& line) {
+    InstructionTokens tokens;
+    // ... seu código de quebra de linha ...
+    return tokens;
+}
+
+DataTokens parseDataLine(const string& line) {
+    DataTokens tokens;
+    // ... seu código de quebra de linha ...
+    return tokens;
+}

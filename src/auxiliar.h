@@ -15,7 +15,7 @@ struct DirectiveInfo {
 struct SymbolInfo {
     int address;
     bool isDefined = false;
-    vector<int> pendingReferences;
+    vector<int> pendingReferences = {};
 };
 
 struct InstructionTokens {
@@ -28,7 +28,7 @@ struct InstructionTokens {
 struct DataTokens {
     string label;
     string directive;
-    int value; 
+    int value;
 };
 
 using SymbolTable = map<string, SymbolInfo>;

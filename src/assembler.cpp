@@ -11,6 +11,8 @@
 using namespace std;
 
 void resolvePendencies(vector<int> buffer, SymbolTable& symbolTable, const string& symbol) {
+    cout << "[DEBUG] Resolvendo pendências" << endl;
+
     if (symbolTable.find(symbol) == symbolTable.end()) {
         // Símbolo não definido
         cerr << "Erro: Não foi possível definir o símbolo: " << symbol << "." << endl;
@@ -23,10 +25,12 @@ void resolvePendencies(vector<int> buffer, SymbolTable& symbolTable, const strin
         for (int i = 0; i < info.pendingReferences.size(); i++) {
             // Acessar o buffer e atualiza com valor definido
             int indexToUpdate = info.pendingReferences[i];
+            cout << "       Atualizando posição " << indexToUpdate << " com valor " << info.address << endl;
             buffer[indexToUpdate] = info.address;
         }
 
         info.pendingReferences.clear();
+        cout << "[DEBUG] Pendências resolvidas." << endl;
     }
 }
 
@@ -50,6 +54,8 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
     DirectiveTable directiveTable = getDirectiveTable();
     SymbolTable symbolTable = getSymbolTable();
 
+    cout << "\n[DEBUG] Iniciando Montagem de: " << filename << ".pre" << endl;
+
     // Variáveis de controle
     int locationCounter = 0;
     bool hasStop = false;
@@ -64,6 +70,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
     // Percorre arquivo
     while (getline(inputFile, line)) {
         if (line == "SECTION TEXT") {
+            cout << "\n\n[DEBUG] Entrou na SECTION TEXT" << endl;
             hasTextSection = true;
             inTextSection = true;
             inDataSection = false;
@@ -71,6 +78,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
         }
 
         if (line == "SECTION DATA") {
+            cout << "\n\n[DEBUG] Entrou na SECTION DATA" << endl;
             hasDataSection = true;
             inTextSection = false;
             inDataSection = true;
@@ -79,6 +87,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
 
         if (inTextSection) {
             InstructionTokens tokens = splitTextLine(line);  // Assumo que não há erro sintáticos ou léxicos
+            cout << "\n[DEBUG] L" << locationCounter << " | Linha: " << line << endl;
 
             if (!tokens.label.empty()) {                                // Se encontrar uma label
                 setSymbol(symbolTable, tokens.label, locationCounter);  // Define a label
@@ -86,24 +95,30 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
             }
 
             InstructionInfo instInfo = instructionTable[tokens.operation];
-            buffer[locationCounter] = instInfo.opcode;  // Escreve opcode
+            buffer.push_back(instInfo.opcode);  // Escreve opcode
+
+            cout << "        Instrução: " << tokens.operation << " (Opcode: " << instInfo.opcode << ")" << endl;
             switch (instInfo.opcode) {
                 case 9:  // COPY -> Adiciona dois símbolos e escreve o endereço no buffer
+                    cout << "        Operandos: " << tokens.addr1 << ", " << tokens.addr2 << endl;
                     addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
                     addSymbol(symbolTable, tokens.addr2, locationCounter + 2);
-                    buffer[locationCounter + 1] = symbolTable[tokens.addr1].address;  // Se for pendência, será 0
-                    buffer[locationCounter + 2] = symbolTable[tokens.addr2].address;  // Se for pendência, será 0
+                    buffer.push_back(symbolTable[tokens.addr1].address);  // Escreve opcode
+                    buffer.push_back(symbolTable[tokens.addr2].address);  // Escreve opcode
                     break;
                 case 14:  // STOP -> Não adiciona símbolos
                     hasStop = true;
                     break;
                 default:  // Adiciona um símbolo e escreve o endereço no buffer
+                    cout << "        Operando: " << tokens.addr1 << endl;
                     addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
-                    buffer[locationCounter + 1] = symbolTable[tokens.addr1].address;  // Se for pendência, será 0
+                    buffer.push_back(symbolTable[tokens.addr1].address);  // Escreve opcode
+
                     break;
             }
 
             locationCounter += instInfo.size;
+            continue;
         }
 
         // DATA SECTION -> assume que o pré processador colocou o DATA por último
@@ -111,17 +126,20 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
             DataTokens tokens = splitDataLine(line);
             string directive = tokens.directive;
             DirectiveInfo dirInfo = directiveTable[directive];
+            cout << "\n[DEBUG] L" << locationCounter << " | DATA: " << tokens.label << " " << tokens.directive << endl;
             if (directive == "SPACE") {
                 setSymbol(symbolTable, tokens.label, locationCounter);  // Define na tabela
                 buffer.push_back(0);                                    // Escreve endereço no buffer
             } else if (directive == "CONST") {
                 setSymbol(symbolTable, tokens.label, locationCounter);  // Define na tabela
                 buffer.push_back(tokens.value);                         // Escreve endereço no buffer
+                cout << "        Valor CONST: " << tokens.value << endl;
             }
 
             // Atualiza o buffer em retrocesso usando valor definido
             resolvePendencies(buffer, symbolTable, tokens.label);
             locationCounter += dirInfo.size;
+            continue;
         }
 
         break;

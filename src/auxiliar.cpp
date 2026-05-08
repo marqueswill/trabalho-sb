@@ -56,28 +56,42 @@ string getInstructionName(int opcode) {
     return "UNKNOWN";
 }
 
+/**
+ * Define o endereço real de um símbolo na SymbolTable.
+ * É chamada quando uma label é encontrada no código (definição do símbolo).
+ */
 void setSymbol(SymbolTable& symbolTable, string symbol, int address) {
     // Erro redefinição de símbolo
+
     if (symbolTable[symbol].isDefined) {
         cerr << "Erro: Redefinição de símbolo." << endl;
         return;
     }
-
+    cout << "[DEBUG] Definindo símbolo: " << symbol << " no endereço: " << address << endl;
+    // Atualiza o endereço para o valor atual do locationCounter e marca como definido
     symbolTable[symbol].address = address;
     symbolTable[symbol].isDefined = true;
 };
 
+/**
+ * Adiciona um símbolo à tabela ou regista uma nova referência pendente.
+ */
 void addSymbol(SymbolTable& symbolTable, string symbol, int address) {
     auto info = symbolTable.find(symbol);
 
-    // Se símbolo existe
+    // O símbolo já existe na tabela (foi definido ou usado antes)
     if (info != symbolTable.end()) {
         if (!info->second.isDefined) {  // Símbolo existe, mas não foi definido -> Adiciono pendência
+            cout << "[DEBUG] Símbolo '" << symbol << "' já possui pendências. " << "Adicionando nova referência no endereço: " << address << endl;
             info->second.pendingReferences.push_back(address);
         }
-    } else {  // Símbolo não existe -> Adiciono símbolo e pendência
+    }
+
+    // Primeira vez que o símbolo aparece no código
+    else {
+        cout << "[DEBUG] Primeira aparição de '" << symbol << "'. " << "Criando entrada com pendência no endereço: " << address << endl;
         symbolTable[symbol].address = 0;
-        symbolTable[symbol].isDefined = false;
+        symbolTable[symbol].isDefined = false;  // Definição ocorre só quando encontra label
         symbolTable[symbol].pendingReferences.push_back(address);
     }
 }
@@ -106,10 +120,37 @@ InstructionTokens splitTextLine(const string& line) {
     InstructionTokens tokens = {"", "", "", ""};
     vector<string> splitLine = splitBySpace(line);
 
-    if (splitLine.size() > 0) tokens.label = splitLine[0];
-    if (splitLine.size() > 1) tokens.operation = splitLine[1];
-    if (splitLine.size() > 2) tokens.addr1 = splitLine[2];
-    if (splitLine.size() > 3) tokens.addr2 = splitLine[3];
+    if (splitLine.empty()) return tokens;
+
+    int currentIdx = 0;
+    // Identifica Label
+    if (splitLine[0].back() == ':') {
+        tokens.label = splitLine[0].substr(0, splitLine[0].size() - 1);
+        currentIdx++;
+    }
+
+    // Identifica Operação
+    if (currentIdx < splitLine.size()) {
+        tokens.operation = splitLine[currentIdx++];
+    }
+
+    // Identifica Operandos
+    if (currentIdx < splitLine.size()) {
+        string operandos = splitLine[currentIdx];
+
+        // Se for COPY, tenta separar por vírgula
+        size_t commaPos = operandos.find(',');
+        if (tokens.operation == "COPY" && commaPos != string::npos) {
+            tokens.addr1 = operandos.substr(0, commaPos);
+            tokens.addr2 = operandos.substr(commaPos + 1);
+        } else {
+            // Caso padrão (outras instruções ou COPY mal formatado)
+            tokens.addr1 = operandos;
+            if (currentIdx + 1 < splitLine.size()) {
+                tokens.addr2 = splitLine[currentIdx + 1];
+            }
+        }
+    }
 
     return tokens;
 }

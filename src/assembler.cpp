@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void resolvePendencies(vector<int> buffer, SymbolTable& symbolTable, const string& symbol) {
+void resolvePendencies(vector<int>& buffer, SymbolTable& symbolTable, const string& symbol) {
     cout << "[DEBUG] Resolvendo pendências" << endl;
 
     if (symbolTable.find(symbol) == symbolTable.end()) {

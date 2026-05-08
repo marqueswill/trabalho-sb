@@ -159,9 +159,27 @@ DataTokens splitDataLine(const string& line) {
     DataTokens tokens = {"", "", 0};
     vector<string> splitLine = splitBySpace(line);
 
-    if (splitLine.size() > 0) tokens.label = splitLine[0];
-    if (splitLine.size() > 1) tokens.directive = splitLine[1];
-    if (splitLine.size() > 2) tokens.value = stoi(splitLine[2]);
+    if (splitLine.empty()) return tokens;
+
+    if (!splitLine[0].empty() && splitLine[0].back() == ':') {
+        tokens.label = splitLine[0].substr(0, splitLine[0].size() - 1);
+    } else {
+        tokens.label = splitLine[0];
+    }
+
+    if (splitLine.size() > 1) {
+        tokens.directive = splitLine[1];
+    }
+
+    if (splitLine.size() > 2) {
+        try {
+            tokens.value = stoi(splitLine[2]);
+        } catch (...) {
+            tokens.value = 0;
+        }
+    } else {
+        tokens.value = 0;
+    }
 
     return tokens;
 }

@@ -67,7 +67,7 @@ void setSymbol(SymbolTable& symbolTable, string symbol, int address) {
         cerr << "Erro: Redefinição de símbolo." << endl;
         return;
     }
-    cout << "[DEBUG] Definindo símbolo: " << symbol << " no endereço: " << address << endl;
+    // cout << "[DEBUG] Definindo símbolo: " << symbol << " no endereço: " << address << endl;
     // Atualiza o endereço para o valor atual do locationCounter e marca como definido
     symbolTable[symbol].address = address;
     symbolTable[symbol].isDefined = true;
@@ -82,14 +82,14 @@ void addSymbol(SymbolTable& symbolTable, string symbol, int address) {
     // O símbolo já existe na tabela (foi definido ou usado antes)
     if (info != symbolTable.end()) {
         if (!info->second.isDefined) {  // Símbolo existe, mas não foi definido -> Adiciono pendência
-            cout << "[DEBUG] Símbolo '" << symbol << "' já possui pendências. " << "Adicionando nova referência no endereço: " << address << endl;
+            // cout << "[DEBUG] Símbolo '" << symbol << "' já possui pendências. " << "Adicionando nova referência no endereço: " << address << endl;
             info->second.pendingReferences.push_back(address);
         }
     }
 
     // Primeira vez que o símbolo aparece no código
     else {
-        cout << "[DEBUG] Primeira aparição de '" << symbol << "'. " << "Criando entrada com pendência no endereço: " << address << endl;
+        // cout << "[DEBUG] Primeira aparição de '" << symbol << "'. " << "Criando entrada com pendência no endereço: " << address << endl;
         symbolTable[symbol].address = 0;
         symbolTable[symbol].isDefined = false;  // Definição ocorre só quando encontra label
         symbolTable[symbol].pendingReferences.push_back(address);

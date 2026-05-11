@@ -68,6 +68,7 @@ void runSimulator(const string& filename) {
     int acc = 0;
     int addr;
     bool isRunning = true;
+    bool hasError = false;
 
     // cout << "--- Iniciando Simulacao ---" << endl;
 
@@ -185,10 +186,10 @@ void runSimulator(const string& filename) {
                 // cout << "memory[" << addr << "] = " << memory[addr] << endl;
 
                 int inValue;
-                while (!(cin >> inValue)) {
-                    cerr << "Erro: Entrada invalida. Apenas numeros inteiros sao aceitos. Digite novamente: ";
+                if (!(cin >> inValue)) {
+                    cerr << "Erro: Entrada invalida." << endl;
                     cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Limpa o estado de erro do cin
+                    return;
                 }
 
                 memory[addr] = inValue;

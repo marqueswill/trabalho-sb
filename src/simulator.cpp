@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -184,7 +185,12 @@ void runSimulator(const string& filename) {
                 // cout << "memory[" << addr << "] = " << memory[addr] << endl;
 
                 int inValue;
-                cin >> inValue;
+                while (!(cin >> inValue)) {
+                    cerr << "Erro: Entrada invalida. Apenas numeros inteiros sao aceitos. Digite novamente: ";
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Limpa o estado de erro do cin
+                }
+
                 memory[addr] = inValue;
                 pc += 2;
                 break;

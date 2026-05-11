@@ -30,7 +30,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
     DirectiveTable directiveTable = getDirectiveTable();
     SymbolTable symbolTable = getSymbolTable();
 
-    cout << "\n[DEBUG] Iniciando Montagem de: " << filename << ".pre" << endl;
+    // cout << "\n[DEBUG] Iniciando Montagem de: " << filename << ".pre" << endl;
 
     // Variáveis de controle
     int locationCounter = 0;
@@ -41,12 +41,14 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
     bool inDataSection = false;
 
     vector<int> buffer;
+    vector<int> penBuffer;
+
     string line;
 
     // Percorre arquivo
     while (getline(inputFile, line)) {
         if (line == "SECTION TEXT") {
-            cout << "\n\n[DEBUG] Entrou na SECTION TEXT" << endl;
+            // cout << "\n\n[DEBUG] Entrou na SECTION TEXT" << endl;
             hasTextSection = true;
             inTextSection = true;
             inDataSection = false;
@@ -54,7 +56,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
         }
 
         if (line == "SECTION DATA") {
-            cout << "\n\n[DEBUG] Entrou na SECTION DATA" << endl;
+            // cout << "\n\n[DEBUG] Entrou na SECTION DATA" << endl;
             hasDataSection = true;
             inTextSection = false;
             inDataSection = true;
@@ -63,7 +65,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
 
         if (inTextSection) {
             InstructionTokens tokens = splitTextLine(line);  // Assumo que não há erro sintáticos ou léxicos
-            cout << "\n[DEBUG] L" << locationCounter << " | Linha: " << line << endl;
+            // cout << "\n[DEBUG] L" << locationCounter << " | " << line << endl;
 
             if (!tokens.label.empty()) {                                 // Se encontrar uma label
                 setSymbol(symbolTable, tokens.label, locationCounter);   // Define a label
@@ -72,25 +74,33 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
 
             InstructionInfo instInfo = instructionTable[tokens.operation];
             buffer.push_back(instInfo.opcode);  // Escreve opcode
+            penBuffer.push_back(instInfo.opcode);
 
-            cout << "        Instrução: " << tokens.operation << " (Opcode: " << instInfo.opcode << ")" << endl;
+            // cout << "        Instrução: " << tokens.operation << " (Opcode: " << instInfo.opcode << ")" << endl;
             switch (instInfo.opcode) {
-                case 9:  // COPY -> Adiciona dois símbolos e escreve o endereço no buffer
-                    cout << "        Operandos: " << tokens.addr1 << ", " << tokens.addr2 << endl;
-                    int addr1 = addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
-                    int addr2 = addSymbol(symbolTable, tokens.addr2, locationCounter + 2);
-                    buffer.push_back(addr1);  // Escreve endereço
-                    buffer.push_back(addr2);  // Escreve endereço
+                case 9: {  // COPY -> Adiciona dois símbolos e escreve o endereço no buffer
+
+                    // cout << "        Operandos: " << tokens.addr1 << ", " << tokens.addr2 << endl;
+                    int val1 = addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
+                    int val2 = addSymbol(symbolTable, tokens.addr2, locationCounter + 2);
+                    buffer.push_back(val1);     // Escreve endereço
+                    buffer.push_back(val2);     // Escreve endereço
+                    penBuffer.push_back(val1);  // Escreve endereço
+                    penBuffer.push_back(val2);  // Escreve endereço
                     break;
-                case 14:  // STOP -> Não adiciona símbolos
+                }
+                case 14: {  // STOP -> Não adiciona símbolos
                     hasStop = true;
                     break;
-                default:  // Adiciona um símbolo e escreve o endereço no buffer
-                    cout << "        Operando: " << tokens.addr1 << endl;
-                    int addr1 = addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
-                    buffer.push_back(addr1);  // Escreve endereço
-
+                }
+                // Adiciona um símbolo e escreve o endereço no buffer
+                default: {
+                    // cout << "        Operando: " << tokens.addr1 << endl;
+                    int val1 = addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
+                    buffer.push_back(val1);  // Escreve endereço
+                    penBuffer.push_back(val1);
                     break;
+                }
             }
 
             locationCounter += instInfo.size;
@@ -102,14 +112,16 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
             DataTokens tokens = splitDataLine(line);
             string directive = tokens.directive;
             DirectiveInfo dirInfo = directiveTable[directive];
-            cout << "\n[DEBUG] L" << locationCounter << " | DATA: " << tokens.label << " " << tokens.directive << endl;
+            // cout << "\n[DEBUG] L" << locationCounter << " | " << tokens.label << " " << tokens.directive << endl;
             if (directive == "SPACE") {
                 setSymbol(symbolTable, tokens.label, locationCounter);  // Define na tabela
                 buffer.push_back(0);                                    // Escreve endereço no buffer
+                penBuffer.push_back(0);
             } else if (directive == "CONST") {
                 setSymbol(symbolTable, tokens.label, locationCounter);  // Define na tabela
                 buffer.push_back(tokens.value);                         // Escreve endereço no buffer
-                cout << "        Valor CONST: " << tokens.value << endl;
+                penBuffer.push_back(tokens.value);
+                // cout << "        Valor CONST: " << tokens.value << endl;
             }
 
             // Atualiza o buffer em retrocesso usando valor definido
@@ -156,7 +168,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
     // Escrever o codigo de maquina final em uma unica linha no .obj e no .pen
     for (size_t i = 0; i < buffer.size(); i++) {
         objFile << buffer[i];
-        penFile << buffer[i];
+        penFile << penBuffer[i];
 
         // Coloca um espaço depois do número, exceto se for o último
         if (i != buffer.size() - 1) {
@@ -167,5 +179,5 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
     objFile.close();
     penFile.close();
 
-    cout << "   Montagem concluida. arquivos gerados: " << objFilename << " e " << penFilename << endl;
+    // cout << "   Montagem concluida. arquivos gerados: " << objFilename << " e " << penFilename << endl;
 }

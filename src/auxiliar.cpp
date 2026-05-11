@@ -67,7 +67,7 @@ void setSymbol(SymbolTable& symbolTable, string symbol, int address) {
         cerr << "Erro: Redefinição de símbolo." << endl;
         return;
     }
-    cout << "[DEBUG] Definindo símbolo: " << symbol << " no endereço: " << address << endl;
+    // cout << "[DEBUG] Definindo símbolo: " << symbol << " no endereço: " << address << endl;
     // Atualiza o endereço para o valor atual do locationCounter e marca como definido
     symbolTable[symbol].address = address;
     symbolTable[symbol].isDefined = true;
@@ -81,7 +81,7 @@ int addSymbol(SymbolTable& symbolTable, string symbol, int address) {
 
     if (info != symbolTable.end()) {    // O símbolo já existe na tabela (foi definido ou usado antes)
         if (!info->second.isDefined) {  // Símbolo existe, mas não foi definido -> Adiciono pendência
-            cout << "[DEBUG] Símbolo '" << symbol << "' já possui pendências. " << "Adicionando nova referência no endereço: " << address << endl;
+            // cout << "[DEBUG] Símbolo '" << symbol << "' já possui pendências. " << "Adicionando nova referência no endereço: " << address << endl;
             // Coloca ponteiro anterior no buffer e o ponteiro atual na tabela de símbolos
             int oldHead = info->second.listHead;
             info->second.listHead = address;
@@ -90,7 +90,7 @@ int addSymbol(SymbolTable& symbolTable, string symbol, int address) {
 
         return info->second.address;
     } else {  // Primeira vez que o símbolo aparece no código
-        cout << "[DEBUG] Primeira aparição de '" << symbol << "'. " << "Criando entrada com pendência no endereço: " << address << endl;
+        // cout << "[DEBUG] Primeira aparição de '" << symbol << "'. " << "Simbolo adicionado com pendência no endereço: " << address << endl;
         SymbolInfo newSymbol;
         newSymbol.address = 0;
         newSymbol.isDefined = false;
@@ -101,7 +101,7 @@ int addSymbol(SymbolTable& symbolTable, string symbol, int address) {
 }
 
 void resolveDependencies(vector<int>& buffer, SymbolTable& symbolTable, const string& symbol) {
-    cout << "[DEBUG] Resolvendo pendências" << endl;
+    // cout << "[DEBUG] Resolvendo pendências" << endl;
 
     if (symbolTable.find(symbol) == symbolTable.end()) {  // Símbolo não definido
         cerr << "Erro: Não foi possível definir o símbolo: " << symbol << "." << endl;
@@ -118,11 +118,11 @@ void resolveDependencies(vector<int>& buffer, SymbolTable& symbolTable, const st
             int next = buffer[current];      // Salva a posição da próxima pendência
             buffer[current] = info.address;  // Substitui pelo endereço final
             current = next;                  // Avança na lista
-            cout << "       Atualizando posição " << next << " com valor " << info.address << endl;
+            // cout << "        Atualizando posição " << next << " com valor " << info.address << endl;
         }
 
         info.listHead = -1;  // Limpa o estado da lista
-        cout << "[DEBUG] Pendências resolvidas." << endl;
+        // cout << "[DEBUG] Pendências resolvidas." << endl;
     }
 }
 

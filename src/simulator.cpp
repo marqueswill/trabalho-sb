@@ -14,7 +14,7 @@ static bool validAddress(int addr, const vector<int>& memory) {
 }
 
 void loadToMemory(const string& filename, vector<int>& memory) {
-    ifstream inputFile(filename);
+    ifstream inputFile(filename + ".obj");
     if (!inputFile.is_open()) {
         cerr << "Erro: Nao foi possivel abrir o arquivo " << filename << endl;
         return;
@@ -48,8 +48,8 @@ bool getOperandAddr(int pc, const vector<int>& memory, int& outAddr) {
 
     outAddr = memory[pc + 1];  // Altera a variável original
 
-    cout << instructionName << " " << outAddr << endl;
-    cout << "memory[" << outAddr <<"] = " << memory[outAddr] << endl;
+    // cout << instructionName << " " << outAddr << endl;
+    // cout << "memory[" << outAddr << "] = " << memory[outAddr] << endl;
 
     if (!validAddress(outAddr, memory)) {  // Verifica se o endereço lido é valido
         cerr << "Erro: endereco invalido em " << instructionName << ": " << outAddr << endl;
@@ -67,7 +67,7 @@ void runSimulator(const string& filename) {
     int acc = 0;
     int addr;
     bool isRunning = true;
-     
+
     // cout << "--- Iniciando Simulacao ---" << endl;
 
     while (isRunning) {
@@ -76,8 +76,8 @@ void runSimulator(const string& filename) {
             return;
         }
 
-        cout << "___________________________________" << endl;
-        cout << "\nACC = " << acc << endl;
+        // cout << "___________________________________" << endl;
+        // cout << "\nACC = " << acc << endl;
 
         int opcode = memory[pc];
 
@@ -130,7 +130,7 @@ void runSimulator(const string& filename) {
 
             case 8: {  // JMPZ
                 getOperandAddr(pc, memory, addr);
-                pc = (acc == 0) ? addr : pc += 2; 
+                pc = (acc == 0) ? addr : pc += 2;
                 break;
             }
 
@@ -180,8 +180,8 @@ void runSimulator(const string& filename) {
                     return;
                 }
 
-                cout << "INPUT " << addr <<endl; 
-                cout << "memory[" << addr << "] = " << memory[addr] << endl;
+                // cout << "INPUT " << addr <<endl;
+                // cout << "memory[" << addr << "] = " << memory[addr] << endl;
 
                 int inValue;
                 cin >> inValue;
@@ -201,8 +201,8 @@ void runSimulator(const string& filename) {
                     return;
                 }
 
-                cout << "OUTPUT " << addr << endl;
-                cout << "memory[" << addr << "] = " << memory[addr] << endl << endl;
+                // cout << "OUTPUT " << addr << endl;
+                // cout << "memory[" << addr << "] = " << memory[addr] << endl << endl;
 
                 cout << memory[addr] << endl;
                 pc += 2;
@@ -215,12 +215,9 @@ void runSimulator(const string& filename) {
             }
 
             default:
-                cerr << "Erro: Opcode desconhecido " << opcode
-                     << " na posicao " << pc << endl;
+                cerr << "Erro: Opcode desconhecido " << opcode << " na posicao " << pc << endl;
                 return;
         }
-
     }
-
     // cout << "--- Simulacao Finalizada ---" << endl;
 }

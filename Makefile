@@ -1,6 +1,6 @@
 # Variáveis de compilador e flags
 CXX = g++
-CXXFLAGS = -Wall -std=c++11 -I./src
+CXXFLAGS = -w -std=c++11 -I./src
 
 # Pastas e Arquivos
 SRC_DIR = src

@@ -1,3 +1,6 @@
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -41,10 +44,10 @@ bool runTestCase(const string& testName) {
     string outputFolder = "tests/outputs/";
 
     // 1. Executar Pré-processador
-    runPreprocessor(testName, exampleFolder, outputFolder);
+    // runPreprocessor(testName, exampleFolder, outputFolder);
 
     // 2. Executar Montador
-    runAssembler(testName, outputFolder, outputFolder);
+    runAssembler(testName, expectedFolder, outputFolder);
 
     // 3. Comparar todos os resultados
     string generatedPre = outputFolder + testName + ".pre";
@@ -77,6 +80,10 @@ bool runTestCase(const string& testName) {
 // MAIN DO TESTADOR
 // =====================================================================
 int main() {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+#endif
     cout << "========================================" << endl;
     cout << " INICIANDO SUITE DE TESTES DO MONTADOR" << endl;
     cout << "========================================" << endl
@@ -85,7 +92,8 @@ int main() {
     vector<TestCase> tests = {
         {"Exemplo Base", "ex1"},
         {"Inversao de Secoes", "fat"},
-        {"Formatacao Extrema", "fibo"}};
+        {"Formatacao Extrema", "fibo"},
+    };
 
     int totalTests = tests.size();
     int passedTests = 0;

@@ -76,23 +76,53 @@ void setSymbol(SymbolTable& symbolTable, string symbol, int address) {
 /**
  * Adiciona um símbolo à tabela ou regista uma nova referência pendente.
  */
-void addSymbol(SymbolTable& symbolTable, string symbol, int address) {
+int addSymbol(SymbolTable& symbolTable, string symbol, int address) {
     auto info = symbolTable.find(symbol);
 
-    // O símbolo já existe na tabela (foi definido ou usado antes)
-    if (info != symbolTable.end()) {
+    if (info != symbolTable.end()) {    // O símbolo já existe na tabela (foi definido ou usado antes)
         if (!info->second.isDefined) {  // Símbolo existe, mas não foi definido -> Adiciono pendência
             // cout << "[DEBUG] Símbolo '" << symbol << "' já possui pendências. " << "Adicionando nova referência no endereço: " << address << endl;
-            info->second.pendingReferences.push_back(address);
+            // Coloca ponteiro anterior no buffer e o ponteiro atual na tabela de símbolos
+            int oldHead = info->second.listHead;
+            info->second.listHead = address;
+            return oldHead;  // retorna o head anterior para ser adicionado no buffer
         }
+
+        return info->second.address;
+    } else {  // Primeira vez que o símbolo aparece no código
+        // cout << "[DEBUG] Primeira aparição de '" << symbol << "'. " << "Simbolo adicionado com pendência no endereço: " << address << endl;
+        SymbolInfo newSymbol;
+        newSymbol.address = 0;
+        newSymbol.isDefined = false;
+        newSymbol.listHead = address;
+        symbolTable[symbol] = newSymbol;
+        return -1;  // indica o final da lista encadeada no local que o símbolo foi encontrado pela primeira vez
+    }
+}
+
+void resolveDependencies(vector<int>& buffer, SymbolTable& symbolTable, const string& symbol) {
+    // cout << "[DEBUG] Resolvendo pendências" << endl;
+
+    if (symbolTable.find(symbol) == symbolTable.end()) {  // Símbolo não definido
+        cerr << "Erro: Não foi possível definir o símbolo: " << symbol << "." << endl;
+        return;
     }
 
-    // Primeira vez que o símbolo aparece no código
-    else {
-        // cout << "[DEBUG] Primeira aparição de '" << symbol << "'. " << "Criando entrada com pendência no endereço: " << address << endl;
-        symbolTable[symbol].address = 0;
-        symbolTable[symbol].isDefined = false;  // Definição ocorre só quando encontra label
-        symbolTable[symbol].pendingReferences.push_back(address);
+    SymbolInfo& info = symbolTable[symbol];
+
+    if (info.isDefined) {
+        int current = info.listHead;
+
+        // Percorre a lista encadeada diretamente no buffer
+        while (current != -1) {
+            int next = buffer[current];      // Salva a posição da próxima pendência
+            buffer[current] = info.address;  // Substitui pelo endereço final
+            current = next;                  // Avança na lista
+            // cout << "        Atualizando posição " << next << " com valor " << info.address << endl;
+        }
+
+        info.listHead = -1;  // Limpa o estado da lista
+        // cout << "[DEBUG] Pendências resolvidas." << endl;
     }
 }
 

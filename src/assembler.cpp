@@ -10,30 +10,6 @@
 
 using namespace std;
 
-void resolvePendencies(vector<int>& buffer, SymbolTable& symbolTable, const string& symbol) {
-    // cout << "[DEBUG] Resolvendo pendências" << endl;
-
-    if (symbolTable.find(symbol) == symbolTable.end()) {
-        // Símbolo não definido
-        cerr << "Erro: Não foi possível definir o símbolo: " << symbol << "." << endl;
-        return;
-    }
-
-    SymbolInfo info = symbolTable[symbol];
-    if (info.isDefined) {
-        // Percorrer lista de pendência para o símbolo
-        for (int i = 0; i < info.pendingReferences.size(); i++) {
-            // Acessar o buffer e atualiza com valor definido
-            int indexToUpdate = info.pendingReferences[i];
-            // cout << "       Atualizando posição " << indexToUpdate << " com valor " << info.address << endl;
-            buffer[indexToUpdate] = info.address;
-        }
-
-        info.pendingReferences.clear();
-        // cout << "[DEBUG] Pendências resolvidas." << endl;
-    }
-}
-
 void runAssembler(const string& filename, string inputFolder, string outputFolder) {
     ////////////////////////////////////
     // ENTRADA
@@ -65,6 +41,8 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
     bool inDataSection = false;
 
     vector<int> buffer;
+    vector<int> penBuffer;
+
     string line;
 
     // Percorre arquivo
@@ -87,34 +65,42 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
 
         if (inTextSection) {
             InstructionTokens tokens = splitTextLine(line);  // Assumo que não há erro sintáticos ou léxicos
-            // cout << "\n[DEBUG] L" << locationCounter << " | Linha: " << line << endl;
+            // cout << "\n[DEBUG] L" << locationCounter << " | " << line << endl;
 
-            if (!tokens.label.empty()) {                                // Se encontrar uma label
-                setSymbol(symbolTable, tokens.label, locationCounter);  // Define a label
-                resolvePendencies(buffer, symbolTable, tokens.label);   // Resolve as dependências
+            if (!tokens.label.empty()) {                                 // Se encontrar uma label
+                setSymbol(symbolTable, tokens.label, locationCounter);   // Define a label
+                resolveDependencies(buffer, symbolTable, tokens.label);  // Resolve as dependências
             }
 
             InstructionInfo instInfo = instructionTable[tokens.operation];
             buffer.push_back(instInfo.opcode);  // Escreve opcode
+            penBuffer.push_back(instInfo.opcode);
 
             // cout << "        Instrução: " << tokens.operation << " (Opcode: " << instInfo.opcode << ")" << endl;
             switch (instInfo.opcode) {
-                case 9:  // COPY -> Adiciona dois símbolos e escreve o endereço no buffer
+                case 9: {  // COPY -> Adiciona dois símbolos e escreve o endereço no buffer
+
                     // cout << "        Operandos: " << tokens.addr1 << ", " << tokens.addr2 << endl;
-                    addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
-                    addSymbol(symbolTable, tokens.addr2, locationCounter + 2);
-                    buffer.push_back(symbolTable[tokens.addr1].address);  // Escreve opcode
-                    buffer.push_back(symbolTable[tokens.addr2].address);  // Escreve opcode
+                    int val1 = addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
+                    int val2 = addSymbol(symbolTable, tokens.addr2, locationCounter + 2);
+                    buffer.push_back(val1);     // Escreve endereço
+                    buffer.push_back(val2);     // Escreve endereço
+                    penBuffer.push_back(val1);  // Escreve endereço
+                    penBuffer.push_back(val2);  // Escreve endereço
                     break;
-                case 14:  // STOP -> Não adiciona símbolos
+                }
+                case 14: {  // STOP -> Não adiciona símbolos
                     hasStop = true;
                     break;
-                default:  // Adiciona um símbolo e escreve o endereço no buffer
+                }
+                // Adiciona um símbolo e escreve o endereço no buffer
+                default: {
                     // cout << "        Operando: " << tokens.addr1 << endl;
-                    addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
-                    buffer.push_back(symbolTable[tokens.addr1].address);  // Escreve opcode
-
+                    int val1 = addSymbol(symbolTable, tokens.addr1, locationCounter + 1);
+                    buffer.push_back(val1);  // Escreve endereço
+                    penBuffer.push_back(val1);
                     break;
+                }
             }
 
             locationCounter += instInfo.size;
@@ -126,18 +112,20 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
             DataTokens tokens = splitDataLine(line);
             string directive = tokens.directive;
             DirectiveInfo dirInfo = directiveTable[directive];
-            // cout << "\n[DEBUG] L" << locationCounter << " | DATA: " << tokens.label << " " << tokens.directive << endl;
+            // cout << "\n[DEBUG] L" << locationCounter << " | " << tokens.label << " " << tokens.directive << endl;
             if (directive == "SPACE") {
                 setSymbol(symbolTable, tokens.label, locationCounter);  // Define na tabela
                 buffer.push_back(0);                                    // Escreve endereço no buffer
+                penBuffer.push_back(0);
             } else if (directive == "CONST") {
                 setSymbol(symbolTable, tokens.label, locationCounter);  // Define na tabela
                 buffer.push_back(tokens.value);                         // Escreve endereço no buffer
+                penBuffer.push_back(tokens.value);
                 // cout << "        Valor CONST: " << tokens.value << endl;
             }
 
             // Atualiza o buffer em retrocesso usando valor definido
-            resolvePendencies(buffer, symbolTable, tokens.label);
+            resolveDependencies(buffer, symbolTable, tokens.label);
             locationCounter += dirInfo.size;
             continue;
         }
@@ -180,7 +168,7 @@ void runAssembler(const string& filename, string inputFolder, string outputFolde
     // Escrever o codigo de maquina final em uma unica linha no .obj e no .pen
     for (size_t i = 0; i < buffer.size(); i++) {
         objFile << buffer[i];
-        penFile << buffer[i];
+        penFile << penBuffer[i];
 
         // Coloca um espaço depois do número, exceto se for o último
         if (i != buffer.size() - 1) {

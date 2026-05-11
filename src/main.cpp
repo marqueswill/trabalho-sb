@@ -40,8 +40,10 @@ int main(int argc, char* argv[]) {
     } else if (extension == ".pre") {
         cout << "Iniciando Montagem (Passagem Única)..." << endl;
         runAssembler(filename);
+
     } else if (extension == ".obj") {
         runSimulator(filename);
+
     } else {
         cerr << "Erro: Extensao nao reconhecida (" << extension << ")." << endl;
         cerr << "Extensoes validas para este programa: .asm, .pre, .obj" << endl;

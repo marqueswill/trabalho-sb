@@ -15,7 +15,8 @@ struct DirectiveInfo {
 struct SymbolInfo {
     int address;
     bool isDefined = false;
-    vector<int> pendingReferences = {};
+    // vector<int> pendingReferences = {};
+    int listHead = -1;
 };
 
 struct InstructionTokens {
@@ -37,7 +38,6 @@ using DirectiveTable = map<string, DirectiveInfo>;
 
 // Tabelas
 InstructionTable getInstructionTable();
-string getInstructionName(int opcode);
 DirectiveTable getDirectiveTable();
 SymbolTable getSymbolTable();
 
@@ -45,11 +45,12 @@ SymbolTable getSymbolTable();
 InstructionTokens splitTextLine(const string&);
 DataTokens splitDataLine(const string&);
 
-void addSymbol(SymbolTable& symbolTable, const string symbol, int address);  // Adiciona símbolo na tabela
+string getInstructionName(int opcode);
+int addSymbol(SymbolTable& symbolTable, const string symbol, int address);   // Adiciona símbolo na tabela
 void setSymbol(SymbolTable& symbolTable, const string symbol, int address);  // Define o enderço de um símbolo
 bool isDefined(SymbolTable& symbolTable, const string symbol);
 bool isDirective(DirectiveTable directiveTable, string operation);
-
+void resolveDependencies(vector<int>& buffer, SymbolTable& symbolTable, const string& symbol);
 constexpr int MAX_MEMORY = 65536;
 
 #endif

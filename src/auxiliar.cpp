@@ -13,7 +13,8 @@ InstructionTable getInstructionTable() {
     return {
         {"ADD", {1, 2}},      // ACC <- ACC + mem(ADDR)
         {"SUB", {2, 2}},      // ACC <- ACC - mem(ADDR)
-        {"MULT", {3, 2}},     // ACC <- ACC × mem(ADDR)
+        {"MUL", {3, 2}},      // ACC <- ACC × mem(ADDR)
+        {"MULT", {3, 2}},     // Aceita também MULT
         {"DIV", {4, 2}},      // ACC <- ACC ÷ mem(ADDR)
         {"JMP", {5, 2}},      // PC <- ADDR
         {"JMPN", {6, 2}},     // Se ACC<0 então PC <- ADDR
@@ -22,7 +23,7 @@ InstructionTable getInstructionTable() {
         {"COPY", {9, 3}},     // mem(ADDR2) <- mem(ADDR1)
         {"LOAD", {10, 2}},    // ACC <- mem(ADDR)
         {"STORE", {11, 2}},   // mem(ADDR) <- ACC
-        {"INPUT", {12, 2}},   // em(ADDR) <- entrada
+        {"INPUT", {12, 2}},   // mem(ADDR) <- entrada
         {"OUTPUT", {13, 2}},  // saída <- mem(ADDR)
         {"STOP", {14, 1}}     // Suspende a execução
     };
@@ -203,7 +204,15 @@ DataTokens splitDataLine(const string& line) {
 
     if (splitLine.size() > 2) {
         try {
-            tokens.value = stoi(splitLine[2]);
+            string valueStr = splitLine[2];
+
+            if (valueStr.size() > 2 &&
+                valueStr[0] == '0' &&
+                (valueStr[1] == 'X' || valueStr[1] == 'x')) {
+                tokens.value = stoi(valueStr, nullptr, 16);
+            } else {
+                tokens.value = stoi(valueStr);
+            }
         } catch (...) {
             tokens.value = 0;
         }

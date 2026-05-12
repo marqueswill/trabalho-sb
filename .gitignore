@@ -6,9 +6,13 @@
 *.lo
 *.o
 *.obj
+*.pen
+*.pre
 
-!tests/examples/*.obj
-!tests/examples/*.o
+!tests/examples/*
+!tests/expected/*
+
+tests/outputs/*
 
 # Precompiled Headers
 *.gch

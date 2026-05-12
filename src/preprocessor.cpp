@@ -217,9 +217,9 @@ void runPreprocessor(const string& filename, string inputFolder, string outputFo
 
         if (tokens.size() == 2 && tokens[0] == "IF") {
             if (tokens[1] == "0") {
-                i++; // pula a próxima linha
+                i++;  // pula a próxima linha
             }
-            continue; // IF não vai para o .pre
+            continue;  // IF não vai para o .pre
         }
 
         afterIf.push_back(replacedEqu[i]);
@@ -229,7 +229,9 @@ void runPreprocessor(const string& filename, string inputFolder, string outputFo
     vector<string> sectionText;
     vector<string> sectionData;
 
-    enum SectionMode { NONE, TEXT, DATA };
+    enum SectionMode { NONE,
+                       TEXT,
+                       DATA };
     SectionMode mode = NONE;
 
     for (const string& current : afterIf) {
@@ -256,9 +258,10 @@ void runPreprocessor(const string& filename, string inputFolder, string outputFo
         outputFile << s << '\n';
     }
 
-    outputFile << "SECTION DATA" << '\n';
+    outputFile << "SECTION DATA";
     for (const string& s : sectionData) {
-        outputFile << s << '\n';
+        outputFile << '\n'
+                   << s;
     }
 
     outputFile.close();

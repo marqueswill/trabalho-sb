@@ -44,7 +44,7 @@ bool runTestCase(const string& testName) {
     string outputFolder = "tests/outputs/";
 
     // 1. Executar Pré-processador
-    // runPreprocessor(testName, exampleFolder, outputFolder);
+    runPreprocessor(testName, exampleFolder, outputFolder);
 
     // 2. Executar Montador
     runAssembler(testName, expectedFolder, outputFolder);
@@ -91,8 +91,16 @@ int main() {
 
     vector<TestCase> tests = {
         {"Exemplo Base", "ex1"},
-        {"Inversao de Secoes", "fat"},
-        {"Formatacao Extrema", "fibo"},
+        {"Fatorial", "fat"},
+        {"Fibonacci", "fibo"},
+        {"Teste Completo 1", "full_test_1"},
+        {"Teste Completo 2", "full_test_2"},
+        {"Teste Completo 3", "full_test_3"},
+        {"Teste Completo 4", "full_test_4"},
+        {"Teste Pré-Processamento 1", "pre_test_1"},
+        {"Teste Pré-Processamento 2", "pre_test_2"},
+        {"Teste Pré-Processamento 3", "pre_test_3"},
+        {"Teste Pré-Processamento 4", "pre_test_4"},
     };
 
     int totalTests = tests.size();

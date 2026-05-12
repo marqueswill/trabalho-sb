@@ -47,7 +47,7 @@ bool runTestCase(const string& testName) {
     runPreprocessor(testName, exampleFolder, outputFolder);
 
     // 2. Executar Montador
-    runAssembler(testName, expectedFolder, outputFolder);
+    runAssembler(testName, outputFolder, outputFolder);
 
     // 3. Comparar todos os resultados
     string generatedPre = outputFolder + testName + ".pre";

@@ -3,7 +3,7 @@ SECTION TEXT
     LOAD  N
     FAT: 
         SUB ONE
-        JMPN FIM
+        JMPZ FIM
         STORE AUX
         MULT N
         STORE N

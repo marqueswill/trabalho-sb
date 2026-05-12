@@ -12,7 +12,7 @@
 !tests/examples/*
 !tests/expected/*
 
-testes/outputs/*
+tests/outputs/*
 
 # Precompiled Headers
 *.gch

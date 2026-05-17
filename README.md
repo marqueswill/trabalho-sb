@@ -1,50 +1,35 @@
 # trabalho-sb
-TODO: introdução do trabalho
 
 ## Integrantes
 1. Gustavo Mena Barreto - 232026414
 2. Willyan Marques de Melo - 221020940
 
-
 ## Requisitos 
-- Sistema Operacional: Windows
+- Sistema Operacional: Linux
 - Compilador: GNU Compiler Collection (GCC)
+- Ferramenta de automação: Make
 
 ## Como executar o montador
 
 ---
-### CodeBlocks
+### Terminal
 
----
-### Powershell
 #### Compilação automática
-Na pasta raíz do projeto, execute:
-```mingw32-make all```
+Na pasta raiz do projeto, execute:
+`make all`
 
 #### Execução de testes
-```mingw32-make test```
+`make test`
 
 #### Compilação e simulação automática:
-Para arquivo exemplo default:
- ```mingw32-make run```
-Para arquivo específico:
- ```mingw32-make run FILE="caminho_arquivo/nome_arquivo.asm"```
+Para o arquivo exemplo padrão:
+`make run`
+
+Para um arquivo específico (informe o caminho sem a extensão):
+`make run FILE="caminho_arquivo/nome_arquivo"`
 
 #### Compilação manual
+Se deseja compilar manualmente, primeiro compile os arquivos:
 
-Ou então, se deseja compilar manualmente, primeiro compile o arquivo main:
-
-```
+```bash
 g++ -Wall -std=c++11 src/main.cpp src/preprocessor.cpp src/assembler.cpp src/simulator.cpp src/auxiliar.cpp -o ./montador
-```
-E então execute o arquivo gerado:
-```
-./montador tests/examples/ex1.asm
-```
-
-
-#### Teste manual
-g++ -Wall -std=c++11 -I./src tests/test.cpp src/preprocessor.cpp src/assembler.cpp src/simulator.cpp src/auxiliar.cpp -o run_tests
-
-
-

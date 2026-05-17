@@ -35,10 +35,8 @@ int main(int argc, char* argv[]) {
     }
 
     if (extension == ".asm") {
-        cout << "Iniciando Pré-processamento..." << endl;
         runPreprocessor(filename);
     } else if (extension == ".pre") {
-        cout << "Iniciando Montagem (Passagem Única)..." << endl;
         runAssembler(filename);
 
     } else if (extension == ".obj") {

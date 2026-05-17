@@ -266,5 +266,5 @@ void runPreprocessor(const string& filename, string inputFolder, string outputFo
 
     outputFile.close();
 
-    cout << "   Pre-processamento concluido. arquivo gerado: " << preFilePath << endl;
+    // cout << "   Pre-processamento concluido. arquivo gerado: " << preFilePath << endl;
 }

@@ -211,7 +211,7 @@ void runSimulator(const string& filename) {
                 // cout << "OUTPUT " << addr << endl;
                 // cout << "memory[" << addr << "] = " << memory[addr] << endl << endl;
 
-                cout << memory[addr] << endl;
+                cout << memory[addr];
                 pc += 2;
                 break;
             }

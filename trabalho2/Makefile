@@ -13,6 +13,10 @@ TARGET = $(BIN_DIR)/calculadora
 
 all: $(TARGET)
 
+run: $(TARGET)
+	@echo "--- Executando o programa ---"
+	@./$(TARGET)
+
 # Executável final dentro de bin/
 $(TARGET): $(OBJS)
 	@mkdir -p $(BIN_DIR)

@@ -1,8 +1,18 @@
 section .data
+
 str_ecerrar     db      "Encerrando calculadora", 0xA, 0x0
 len_str_ecerrar equ     $ - str_ecerrar
 
+str_resultado db      "Resultado:", 0xA, 0x0
+len_str_resultado equ     $ - str_resultado
+
+
+str_continuar db      0xa,"Pressione enter para continuar", 0x0
+len_str_continuar equ     $ - str_continuar
+
+
 section .bss
+extern buffer_escrita
 tipo_inteiro    resd    1
 
 section .text
@@ -19,12 +29,12 @@ section .text
 	; Funções de IO
     extern print_string
     extern ler_string
-    extern ler_int16
-    extern ler_int32
+    extern ler_inteiro
 	extern print_int32
     extern print_int16
 	extern saudacao
 	extern exibir_menu
+	extern int32_to_ascii
 
 _start:
 ; TODO: fazer loop execucao
@@ -32,22 +42,43 @@ _start:
 	call    saudacao
 	mov     dword [tipo_inteiro], eax									; salvo na memória
 
-loop_execucao:
-	call    exibir_menu
-	push    eax									
-	call    ler_inteiro				
-	push 	eax
-	call    ler_inteiro						
-	push 	eax
-	; ordem na pilha: operação -> inteiro 1 -> inteiro 2
+	.loop_execucao:
+		call    exibir_menu
+		cmp eax, 0x7
+		je end
 
-	call    switch_case_operacao				; recebe a operação e os inteiros
-	add     esp, 12 							; reseta pilha pro próximo loop
+		push    eax ; salva a operação
+
+		mov     [tipo_inteiro], eax
+		call    ler_inteiro
+		push 	eax ; salva o inteiro 1
+
+		mov     [tipo_inteiro], eax
+		call    ler_inteiro			
+		push 	eax ; salva o inteiro 2
+
+		; ordem na pilha: operação -> inteiro 1 -> inteiro 2
+		call    switch_case_operacao				; recebe a operação e os inteiros, devolve o resultado (1 para interromper, 0 para continuar)
+		add     esp, 12 							; reseta pilha pro próximo loop
 	
-	cmp     eax, 0x1
-	je      loop_execucao
+		cmp     eax, 0x0
+		je end
+
+		push    len_str_continuar
+		push    str_continuar
+		call    print_string
+		add 	esp, 8
+
+		call 	ler_string
+		
+		jmp      .loop_execucao
 
 end:
+	push    len_str_ecerrar
+	push    str_ecerrar
+	call    print_string
+	add 	esp, 8
+
     ; Syscall de saída (sys_exit)
 	mov     eax, 1								; número da syscall para sair
 	xor     ebx, ebx							; código de retorno 0
@@ -55,26 +86,7 @@ end:
 
 ; === FUNÇÕES AUXILIARES ===
 
-ler_inteiro:
-; TODO: implementar essa bomba aqui
-; retorno tem que ser pela pilha
-	push    ebp
-	mov     ebp, esp
 
-	mov     [tipo_inteiro], eax
-	cmp     eax, 0x1
-	je      eh_pra_ler_int32
-
-	call    ler_int16
-	jmp     end_ler_inteiro
-
-	eh_pra_ler_int32:
-		call    ler_int32
-
-	end_ler_inteiro:
-		mov     esp, ebp
-		pop     ebp
-		ret
 
 switch_case_operacao:
 	push    ebp
@@ -84,8 +96,8 @@ switch_case_operacao:
 	mov     ebx, [ebp+12]						; 2o arg: Inteiro 1
 	mov     ecx, [ebp+16]						; 3o arg: Operacao
 
-	push    ebx									; empilha int2 para chamada da operação
 	push    eax									; empilha int1 para chamada da operação
+	push    ebx									; empilha int2 para chamada da operação
 
 	cmp     ecx, 0x1
 	je      fazer_adicao
@@ -105,9 +117,6 @@ switch_case_operacao:
 	cmp     ecx, 0x6
 	je      fazer_mod
 
-	push    len_str_ecerrar
-	push    str_ecerrar
-	call    print_string
 	add     esp, 8 								; limpa a pilha
 	mov     eax, 0x0							; flag em 0 para parar exec
 	jmp     end_switch_case_operacao
@@ -137,19 +146,33 @@ switch_case_operacao:
 		jmp     limpar_e_mostrar
 
 	limpar_e_mostrar:
+		push 	eax
+		
+		push len_str_resultado
+		push str_resultado
+		call print_string
+		add esp, 8
 
-		cmp     dword [tipo_inteiro], 0x1
-		je      eh_int32
+		cmp     dword [tipo_inteiro], 0x0
+		je      eh_int16
 
-		call    print_int16
+		push buffer_escrita
+		call int32_to_ascii ; converte para int para ascii e retorna o número de bytes em buffer_escrita
+		add esp, 8
+
+		push eax
+		push buffer_escrita
+		call print_string
+		add esp, 8
 
 		mov     eax, 0x1							; flag em 1 para continuar exec
 		jmp     end_switch_case_operacao
 
-		eh_int32:
-			call    print_int32
+		eh_int16:
+		; push 	eax
+		; call    print_int16
 
-		add     esp, 8 								; limpa pilha por causa da chamada da operação
+		; add     esp, 12 								; limpa pilha por causa da chamada da operação
 		mov     eax, 0x1							; flag em 1 para continuar exec
 
 	end_switch_case_operacao:

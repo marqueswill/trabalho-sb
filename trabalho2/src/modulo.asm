@@ -1,8 +1,8 @@
-; int modulo(int a, int b) -> eax = resto de (a / b)
+; int mod(int a, int b) -> eax = resto de (a / b)
 section .text
-    global modulo
+    global mod
 
-modulo:
+mod:
     push ebp
     mov ebp, esp
 

@@ -1,19 +1,22 @@
 section .data
+	str_ecerrar     db      "Encerrando calculadora", 0xA, 0x0
+	len_str_ecerrar equ     $ - str_ecerrar
 
-str_ecerrar     db      "Encerrando calculadora", 0xA, 0x0
-len_str_ecerrar equ     $ - str_ecerrar
+	str_resultado db      "Resultado:", 0xA, 0x0
+	len_str_resultado equ     $ - str_resultado
 
-str_resultado db      "Resultado:", 0xA, 0x0
-len_str_resultado equ     $ - str_resultado
+	str_continuar db      0xa,"Pressione enter para continuar", 0x0
+	len_str_continuar equ     $ - str_continuar
 
-
-str_continuar db      0xa,"Pressione enter para continuar", 0x0
-len_str_continuar equ     $ - str_continuar
-
+	str_overflow db      "OCORREU OVERFLOW", 0xA, 0x0
+	len_str_overflow equ     $ - str_overflow
 
 section .bss
-extern buffer_escrita
-tipo_inteiro    resd    1
+	; TODO: não pode isso aqui não
+	extern buffer_escrita
+
+	; TODO: remover acesso na memória e usar ponteiro
+	tipo_inteiro    resd    1
 
 section .text
     global _start
@@ -37,7 +40,7 @@ section .text
 	extern int32_to_ascii
 
 _start:
-; TODO: fazer loop execucao
+	; TODO: Instanciar os buffers de leitura e escrita dinamicamente na pilha (sub esp, X) para abolir o uso global na .bss.
 
 	call    saudacao
 	mov     dword [tipo_inteiro], eax									; salvo na memória
@@ -49,11 +52,15 @@ _start:
 
 		push    eax ; salva a operação
 
+
+		; TODO: passar leitura para dentro das operações (fica redundante mas é requerimento)
 		mov     [tipo_inteiro], eax
+		; TODO: separar em ler_inteiro32 e ler_inteiro16
 		call    ler_inteiro
 		push 	eax ; salva o inteiro 1
 
 		mov     [tipo_inteiro], eax
+		; TODO: separar em ler_inteiro32 e ler_inteiro16
 		call    ler_inteiro			
 		push 	eax ; salva o inteiro 2
 
@@ -84,10 +91,8 @@ end:
 	xor     ebx, ebx							; código de retorno 0
 	int     0x80
 
+
 ; === FUNÇÕES AUXILIARES ===
-
-
-
 switch_case_operacao:
 	push    ebp
 	mov     ebp, esp
@@ -95,6 +100,10 @@ switch_case_operacao:
 	mov     eax, [ebp+8]						; 1o arg: Inteiro 2
 	mov     ebx, [ebp+12]						; 2o arg: Inteiro 1
 	mov     ecx, [ebp+16]						; 3o arg: Operacao
+
+	; TODO: refatorar operações para elas mesmas lerem os inteiros
+	; TODO: fazer um switch case para 16bits e 32bits
+	; TODO: implementar 2 versões para cada operação
 
 	push    eax									; empilha int1 para chamada da operação
 	push    ebx									; empilha int2 para chamada da operação
@@ -146,6 +155,7 @@ switch_case_operacao:
 		jmp     limpar_e_mostrar
 
 	limpar_e_mostrar:
+		add 	esp, 8
 		push 	eax
 		
 		push len_str_resultado

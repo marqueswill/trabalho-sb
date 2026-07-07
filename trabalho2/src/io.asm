@@ -56,6 +56,7 @@ print_string:
 	pop     ebp									; restauro a <referência antiga de ebp>, esp agora aponta para o endereço de retorno
 	ret
 
+; TODO: Receber o ponteiro do buffer_leitura pela pilha em [ebp+8], em vez de acessá-lo globalmente.
 ler_string:
 	push    ebp
 	mov     ebp, esp
@@ -75,7 +76,7 @@ ler_string:
 	pop     ebp
 	ret
 
-; recebe argumento na pilha pra saber se é 32 ou 16 bits
+; TODO: Dividir esta função estritamente em duas: uma para 16 bits e outra para 32 bits, eliminando o desvio interno por cmp eax, 0x0.
 ler_inteiro:
 	push    ebp
 	mov     ebp, esp
@@ -159,6 +160,7 @@ saudacao:
 	ret
 
 ; retorna a opcao de operação escolhida pelo usuario
+; TODO: Quebrar a string do menu e imprimir iterativamente (linha por linha em loop ou chamadas sequenciais), conforme restrição arquitetural.
 exibir_menu:
 	push    ebp
 	mov     ebp, esp
@@ -182,7 +184,7 @@ ascii_to_int16:
 	mov     ebp, esp
 
 	loop_ascii_to_int16:
-
+	; TODO: Implementar a lógica de conversão de ASCII para inteiro de 16 bits.
 	end_loop_ascii_to_int16:
 
 	mov     esp, ebp
@@ -203,109 +205,109 @@ ascii_to_int32:
     xor     ecx, ecx      ; ecx = 0 (flag de sinal: 0 = positivo, 1 = negativo)
 
 	.ignora_espacos:
-		mov     bl, byte [esi]
-		cmp     bl, ' '
-		jne     .verifica_sinal
-		inc     esi
-		jmp     .ignora_espacos
+	mov     bl, byte [esi]
+	cmp     bl, ' '
+	jne     .verifica_sinal
+	inc     esi
+	jmp     .ignora_espacos
 
 	.verifica_sinal:
-		cmp     bl, '-'
-		jne     .verifica_positivo
-		mov     ecx, 1        ; define flag de negativo
-		inc     esi
-		jmp     .laco_conversao
+	cmp     bl, '-'
+	jne     .verifica_positivo
+	mov     ecx, 1        ; define flag de negativo
+	inc     esi
+	jmp     .laco_conversao
 
 	.verifica_positivo:
-		cmp     bl, '+'
-		jne     .laco_conversao
-		inc     esi
+	cmp     bl, '+'
+	jne     .laco_conversao
+	inc     esi
 
 	.laco_conversao:
-		mov     bl, byte [esi]
-		test    bl, bl        ; verifica fim da string (null terminator)
-		jz      .fim_laco_conversao
-		
-		cmp     bl, '0'
-		jl      .fim_laco_conversao          ; finaliza se o caractere for menor que '0'
-		cmp     bl, '9'
-		jg      .fim_laco_conversao          ; finaliza se o caractere for maior que '9'
+	mov     bl, byte [esi]
+	test    bl, bl        ; verifica fim da string (null terminator)
+	jz      .fim_laco_conversao
+	
+	cmp     bl, '0'
+	jl      .fim_laco_conversao          ; finaliza se o caractere for menor que '0'
+	cmp     bl, '9'
+	jg      .fim_laco_conversao          ; finaliza se o caractere for maior que '9'
 
-		sub     bl, '0'       ; converte de ASCII para valor numérico (0-9)
-		
-		imul    eax, 10       ; multiplica o resultado acumulado por 10
-		add     eax, ebx      ; adiciona o novo dígito ao resultado
-		
-		inc     esi
-		jmp     .laco_conversao
+	sub     bl, '0'       ; converte de ASCII para valor numérico (0-9)
+	
+	imul    eax, 10       ; multiplica o resultado acumulado por 10
+	add     eax, ebx      ; adiciona o novo dígito ao resultado
+	
+	inc     esi
+	jmp     .laco_conversao
 
 	.fim_laco_conversao:
-		test    ecx, ecx
-		jz      .fim_ascii_to_int32
-		neg     eax           ; aplica o sinal negativo se a flag foi definida
+	test    ecx, ecx
+	jz      .fim_ascii_to_int32
+	neg     eax           ; aplica o sinal negativo se a flag foi definida
 
-	.fim_ascii_to_int32:
-		pop     esi
-		pop     ebx
+.fim_ascii_to_int32:
+	pop     esi
+	pop     ebx
 
-		mov     esp, ebp
-		pop     ebp
-		ret
+	mov     esp, ebp
+	pop     ebp
+	ret
 
 
 ; Entrada:
 ;   [ebp+8] - ponteiro para o buffer_saida
 ;   [ebp+12]  - valor inteiro de 32 bits
 int32_to_ascii:
-    push    ebp
-    mov     ebp, esp
-    push    ebx
-    push    edi
+	push    ebp
+	mov     ebp, esp
+	push    ebx
+	push    edi
 
-    mov     edi, [ebp+8]    ; edi = ponteiro para buffer_saida
-    mov     eax, [ebp+12]     ; eax = valor a ser convertido
-    
-    test    eax, eax
-    jns     .prepara_divisao ; se o sinal for positivo (SF=0), pula
-    
-    mov     byte [edi], '-'  ; insere o caractere '-' no buffer
-    inc     edi              ; avança o ponteiro do buffer
-    neg     eax              ; converte o valor negativo em positivo (complemento de 2)
+	mov     edi, [ebp+8]    ; edi = ponteiro para buffer_saida
+	mov     eax, [ebp+12]     ; eax = valor a ser convertido
+
+	test    eax, eax
+	jns     .prepara_divisao ; se o sinal for positivo (SF=0), pula
+
+	mov     byte [edi], '-'  ; insere o caractere '-' no buffer
+	inc     edi              ; avança o ponteiro do buffer
+	neg     eax              ; converte o valor negativo em positivo (complemento de 2)
 
 	.prepara_divisao:
-		mov     ebx, 10          ; divisor constante = 10
-		xor     ecx, ecx         ; ecx = 0 (contador de dígitos empilhados)
+	mov     ebx, 10          ; divisor constante = 10
+	xor     ecx, ecx         ; ecx = 0 (contador de dígitos empilhados)
 
-		; 2. Extração dos dígitos (ordem inversa)
+	; 2. Extração dos dígitos (ordem inversa)
 	.divide_loop:
-		xor     edx, edx         ; zera edx pois a instrução div usa edx:eax
-		div     ebx              ; eax = quociente, edx = resto (dígito atual)
-		push    edx              ; salva o dígito na pilha
-		inc     ecx              ; incrementa o contador de dígitos
-		
-		test    eax, eax         ; verifica se o quociente é 0
-		jnz     .divide_loop     ; se não for, continua dividindo
+	xor     edx, edx         ; zera edx pois a instrução div usa edx:eax
+	div     ebx              ; eax = quociente, edx = resto (dígito atual)
+	push    edx              ; salva o dígito na pilha
+	inc     ecx              ; incrementa o contador de dígitos
+	
+	test    eax, eax         ; verifica se o quociente é 0
+	jnz     .divide_loop     ; se não for, continua dividindo
 
 	.escreve_loop:
-		pop     edx              ; recupera o último dígito empilhado
-		add     dl, '0'          ; converte o valor numérico (0-9) para ASCII ('0'-'9')
-		mov     [edi], dl        ; escreve o caractere no buffer
-		inc     edi              ; avança o ponteiro do buffer
-		
-		dec     ecx              ; decrementa o contador de dígitos
-		jnz     .escreve_loop    ; continua até escrever todos os dígitos
+	pop     edx              ; recupera o último dígito empilhado
+	add     dl, '0'          ; converte o valor numérico (0-9) para ASCII ('0'-'9')
+	mov     [edi], dl        ; escreve o caractere no buffer
+	inc     edi              ; avança o ponteiro do buffer
+	
+	dec     ecx              ; decrementa o contador de dígitos
+	jnz     .escreve_loop    ; continua até escrever todos os dígitos
 
-	.fim_int32_to_ascii:
-		mov     byte [edi], 0    ; adiciona o caractere nulo (null-terminator) ao final
+.fim_int32_to_ascii:
+	mov     byte [edi], 0    ; adiciona o caractere nulo (null-terminator) ao final
 
-		mov     eax, edi         ; eax recebe o endereço atual (final) do buffer
-		sub     eax, [ebp+8]    ; subtrai o endereço inicial recebido na stack
+	mov     eax, edi         ; eax recebe o endereço atual (final) do buffer
+	sub     eax, [ebp+8]    ; subtrai o endereço inicial recebido na stack
 
-		pop     edi
-		pop     ebx
-		mov     esp, ebp
-		pop     ebp
-		ret
+	pop     edi
+	pop     ebx
+	mov     esp, ebp
+	pop     ebp
+	ret
 
 
 print_int16:

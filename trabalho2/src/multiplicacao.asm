@@ -1,7 +1,8 @@
 section .text
-    global multiplicacao
+    global multiplicacao_int32
+    global multiplicacao_int16
 
-multiplicacao:
+multiplicacao_int32:
     push ebp
     mov ebp, esp
     xor edx, edx              ; edx = flag overflow (0 = ok)
@@ -10,6 +11,15 @@ multiplicacao:
     jno .fim
     mov edx, 1
 .fim:
+    mov esp, ebp
+    pop ebp
+    ret
+
+
+multiplicacao_int16:
+    push ebp
+    mov ebp, esp
+
     mov esp, ebp
     pop ebp
     ret

@@ -1,7 +1,9 @@
 section .text
-    global exponenciacao
+    global exponenciacao_int32
+    global exponenciacao_int16
 
-exponenciacao:
+; TODO: adicionar mensagem overflow
+exponenciacao_int32:
     push ebp
     mov ebp, esp
     mov eax, 1
@@ -18,6 +20,14 @@ exponenciacao:
     dec ecx
     jmp .loop
 .fim:
+    mov esp, ebp
+    pop ebp
+    ret
+
+exponenciacao_int16:
+    push ebp
+    mov ebp, esp
+
     mov esp, ebp
     pop ebp
     ret

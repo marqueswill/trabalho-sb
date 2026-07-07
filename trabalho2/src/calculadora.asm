@@ -110,10 +110,10 @@ switch_case_operacao:
 	mov     ebx, [ebp+12]						; 2o arg: Inteiro 1
 	mov     ecx, [ebp+16]						; 3o arg: Operacao
 
+
 	; TODO: refatorar operações para elas mesmas lerem os inteiros
 	; TODO: fazer um switch case para 16bits e 32bits
-	; TODO: implementar 2 versões para cada operação
-
+	; TODO: implementar 2 versões para cada operação	
 	push    eax									; empilha int1 para chamada da operação
 	push    ebx									; empilha int2 para chamada da operação
 

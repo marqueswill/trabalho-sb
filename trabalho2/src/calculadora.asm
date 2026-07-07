@@ -1,26 +1,31 @@
 section .data
-	str_ecerrar     db      "Encerrando calculadora", 0xA, 0x0
-	len_str_ecerrar equ     $ - str_ecerrar
+str_ecerrar     db      "Encerrando calculadora", 0xA, 0x0
+len_str_ecerrar equ     $ - str_ecerrar
 
-	str_resultado db      "Resultado:", 0xA, 0x0
-	len_str_resultado equ     $ - str_resultado
+str_resultado   db      "Resultado:", 0xA, 0x0
+len_str_resultado equ     $ - str_resultado
 
-	str_continuar db      0xa,"Pressione enter para continuar", 0x0
-	len_str_continuar equ     $ - str_continuar
+str_continuar   db      0xa, "Pressione enter para continuar", 0x0
+len_str_continuar equ     $ - str_continuar
 
-	str_overflow db      "OCORREU OVERFLOW", 0xA, 0x0
-	len_str_overflow equ     $ - str_overflow
+str_overflow    db      "OCORREU OVERFLOW", 0xA, 0x0
+len_str_overflow equ     $ - str_overflow
 
+str_opcao_invalida db      "OPCAO INVALIDA!", 0xA, 0x0
+len_str_opcao_invalida equ     $ - str_opcao_invalida
 
-; TODO: não pode isso aqui não
 section .bss
-	extern buffer_escrita
-
-	tipo_inteiro    resd    1 	; TODO: isso aqui deve ser feito usando ponteiro
+nome_usuario    resb    30						; Armazena o nome do usuário
+resposta_precisao resd    1						; Armazena a precisão (0 para 16 bits, 1 para 32 bits)
+opcao_menu      resd    1						; Armazena a opção do menu (1 a 7)
 
 
 section .text
     global _start
+
+	global opcao_menu
+	global resposta_precisao
+	global nome_usuario
 
 	; Funções para operações
 	extern adicao_int32
@@ -39,61 +44,49 @@ section .text
 
 	; Funções de IO
 	extern saudacao
+	extern pergunta_precisao
 	extern exibir_menu
-    extern ler_string
-    extern ler_int32
-	extern ler_int16
+
+	extern ler_string
     extern print_string
+
+	extern ler_int32
 	extern print_int32
-    extern print_int16
 	extern int32_to_ascii
 
+	extern ler_int16
+    extern print_int16
+	extern int16_to_ascii
+
 _start:
-	; TODO: Instanciar os buffers de leitura e escrita dinamicamente na pilha (sub esp, X) para abolir o uso global na .bss.
-
 	call    saudacao
-	mov     dword [tipo_inteiro], eax									; salvo na memória
+	call    pergunta_precisao					; salva precisao em [resposta_precisao] e retorna esse valor
 
-	.loop_execucao:
-		call    exibir_menu
-		cmp eax, 0x7
-		je end
+loop_execucao:
+	call    exibir_menu							; salva operacao em [opcao_menu] e retorna esse valor
 
-		push    eax ; salva a operação
+	cmp     eax, 0x7
+	je      end
 
+	mov     eax, [resposta_precisao]
+	cmp     eax, 0x0
+	je      precisao_16bit
 
-		; TODO: passar leitura para dentro das operações (fica redundante mas é requerimento)
-		mov     [tipo_inteiro], eax
-		; TODO: separar em ler_inteiro32 e ler_inteiro16
-		call    ler_inteiro
-		push 	eax ; salva o inteiro 1
+	call    switch_case_operacao_32bit
+	jmp     continuar_loop_execucao
 
-		mov     [tipo_inteiro], eax
-		; TODO: separar em ler_inteiro32 e ler_inteiro16
-		call    ler_inteiro			
-		push 	eax ; salva o inteiro 2
+precisao_16bit:
+	call    switch_case_operacao_16bit
 
-		; ordem na pilha: operação -> inteiro 1 -> inteiro 2
-		call    switch_case_operacao				; recebe a operação e os inteiros, devolve o resultado (1 para interromper, 0 para continuar)
-		add     esp, 12 							; reseta pilha pro próximo loop
-	
-		cmp     eax, 0x0
-		je end
-
-		push    len_str_continuar
-		push    str_continuar
-		call    print_string
-		add 	esp, 8
-
-		call 	ler_string
-		
-		jmp      .loop_execucao
+continuar_loop_execucao:
+	call    ler_string
+	jmp     loop_execucao
 
 end:
 	push    len_str_ecerrar
 	push    str_ecerrar
 	call    print_string
-	add 	esp, 8
+	add     esp, 8
 
     ; Syscall de saída (sys_exit)
 	mov     eax, 1								; número da syscall para sair
@@ -102,99 +95,132 @@ end:
 
 
 ; === FUNÇÕES AUXILIARES ===
-switch_case_operacao:
+switch_case_operacao_32bit:
 	push    ebp
 	mov     ebp, esp
 
-	mov     eax, [ebp+8]						; 1o arg: Inteiro 2
-	mov     ebx, [ebp+12]						; 2o arg: Inteiro 1
-	mov     ecx, [ebp+16]						; 3o arg: Operacao
+	mov     eax, [opcao_menu]
+
+	cmp     eax, 0x1
+	call    adicao_int32
+	jmp     mostrar_resultado_int32
+
+	cmp     eax, 0x2
+	call    subtracao_int32
+	jmp     mostrar_resultado_int32
+
+	cmp     eax, 0x3
+	call    multiplicacao_int32
+	jmp     mostrar_resultado_int32
+
+	cmp     eax, 0x4
+	call    divisao_int32
+	jmp     mostrar_resultado_int32
+
+	cmp     eax, 0x5
+	call    exponenciacao_int32
+	jmp     mostrar_resultado_int32
+
+	cmp     eax, 0x6
+	call    mod_int32
+	jmp     mostrar_resultado_int32
+
+;	push    len_str_opcao_invalida
+;	push    str_opcao_invalida
+;	call    print_string
+;	add     esp, 8
+
+	jmp     end_switch_case_operacao_32bit
 
 
-	; TODO: refatorar operações para elas mesmas lerem os inteiros
-	; TODO: fazer um switch case para 16bits e 32bits
-	; TODO: implementar 2 versões para cada operação	
-	push    eax									; empilha int1 para chamada da operação
-	push    ebx									; empilha int2 para chamada da operação
+mostrar_resultado_int32:
+	sub     esp, 32								; aloca espaço para escrever o resultado
+	mov     ebx, eax							; guarda o resultado
 
-	cmp     ecx, 0x1
-	je      fazer_adicao
+	push    len_str_resultado
+	push    str_resultado
+	call    print_string
+	add     esp, 8
 
-	cmp     ecx, 0x2
-	je      fazer_subtracao
+	push    ebx
+	lea     eax, [ebp - 32]
+	push    eax
+	call    int32_to_ascii						; converte para int para ascii e retorna o número de bytes em buffer_escrita
+	add     esp, 8
 
-	cmp     ecx, 0x3
-	je      fazer_multiplicacao
+	push    eax
+	lea     eax, [ebp - 32]
+	push    eax
+	call    print_string
+	add     esp, 8
 
-	cmp     ecx, 0x4
-	je      fazer_divisao
+end_switch_case_operacao_32bit:
+	mov     eax, 0x1							; flag em 1 para continuar exec
+	mov     esp, ebp
+	pop     ebp
+	ret
 
-	cmp     ecx, 0x5
-	je      fazer_exponenciacao
+switch_case_operacao_16bit:
+	push    ebp
+	mov     ebp, esp
 
-	cmp     ecx, 0x6
-	je      fazer_mod
+	mov     eax, [opcao_menu]
 
-	add     esp, 8 								; limpa a pilha
-	mov     eax, 0x0							; flag em 0 para parar exec
-	jmp     end_switch_case_operacao
+	cmp     eax, 0x1
+	call    adicao_int16
+	jmp     mostrar_resultado_int16
 
-	fazer_adicao:
-		call    adicao
-		jmp     limpar_e_mostrar
+	cmp     eax, 0x2
+	call    subtracao_int16
+	jmp     mostrar_resultado_int16
 
-	fazer_subtracao:
-		call    subtracao
-		jmp     limpar_e_mostrar
+	cmp     eax, 0x3
+	call    multiplicacao_int16
+	jmp     mostrar_resultado_int16
 
-	fazer_multiplicacao:
-		call    multiplicacao
-		jmp     limpar_e_mostrar
+	cmp     eax, 0x4
+	call    divisao_int16
+	jmp     mostrar_resultado_int16
 
-	fazer_divisao:
-		call    divisao
-		jmp     limpar_e_mostrar
+	cmp     eax, 0x5
+	call    exponenciacao_int16
+	jmp     mostrar_resultado_int16
 
-	fazer_exponenciacao:
-		call    exponenciacao
-		jmp     limpar_e_mostrar
+	cmp     eax, 0x6
+	call    mod_int16
+	jmp     mostrar_resultado_int16
 
-	fazer_mod:
-		call    mod
-		jmp     limpar_e_mostrar
+	push    len_str_opcao_invalida
+	push    str_opcao_invalida
+	call    print_string
+	add     esp, 8
 
-	limpar_e_mostrar:
-		add 	esp, 8
-		push 	eax
-		
-		push len_str_resultado
-		push str_resultado
-		call print_string
-		add esp, 8
+	jmp     end_switch_case_operacao_16bit
 
-		cmp     dword [tipo_inteiro], 0x0
-		je      eh_int16
 
-		push buffer_escrita
-		call int32_to_ascii ; converte para int para ascii e retorna o número de bytes em buffer_escrita
-		add esp, 8
+mostrar_resultado_int16:
+	sub     esp, 32								; aloca espaço para escrever o resultado
+	mov     ebx, eax							; guarda o resultado
 
-		push eax
-		push buffer_escrita
-		call print_string
-		add esp, 8
+	push    len_str_resultado
+	push    str_resultado
+	call    print_string
+	add     esp, 8
 
-		mov     eax, 0x1							; flag em 1 para continuar exec
-		jmp     end_switch_case_operacao
+	push    ebx
+	lea     eax, [ebp - 32]
+	push    eax
+	call    int16_to_ascii						; converte para int para ascii e retorna o número de bytes em buffer_escrita
+	add     esp, 8
 
-		eh_int16:
-		; push 	eax
-		; call    print_int16
+	push    eax
+	lea     eax, [ebp - 32]
+	push    eax
+	call    print_string
+	add     esp, 8
 
-		; add     esp, 12 								; limpa pilha por causa da chamada da operação
-		mov     eax, 0x1							; flag em 1 para continuar exec
-
-	end_switch_case_operacao:
-		mov     esp, ebp
-		pop     ebp
-		ret
+end_switch_case_operacao_16bit:
+	mov     eax, 0x1							; flag em 1 para continuar exec
+	mov     esp, ebp
+	pop     ebp
+	ret

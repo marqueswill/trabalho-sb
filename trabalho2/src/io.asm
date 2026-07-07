@@ -25,12 +25,14 @@ str_menu        db      0xA, "Escolha uma opção:", 0xA, \
 	"- 7: sair",0xa,0xa,0x0
 len_str_menu    equ     $ - str_menu
 
+; TODO: isso aqui não pode, refatorar tudo
 section .bss
 	global buffer_escrita
 	
 	buffer_leitura  resb    30
 	buffer_escrita  resb    30
 	tamanho_nome    resd    1
+
 section .text
     global saudacao
     global print_string
@@ -145,6 +147,8 @@ saudacao:
 	push    str_saudacao2
 	call    print_string
 
+
+	; TODO: separar para uma função própria que recebe ponteiro para armazenar precisao
 	push    len_str_tipo_inteiro
 	push    str_tipo_inteiro
 	call    print_string
@@ -152,8 +156,8 @@ saudacao:
 	call    ler_string
 	movzx   eax, byte [buffer_leitura]			; lê o primeiro byte
 	sub     eax, 48								; converte para inteiro
-
     ; TODO: verificar se entrada é valida -> 0 ou 1
+
 
 	mov     esp, ebp
 	pop     ebp
@@ -161,6 +165,7 @@ saudacao:
 
 ; retorna a opcao de operação escolhida pelo usuario
 ; TODO: Quebrar a string do menu e imprimir iterativamente (linha por linha em loop ou chamadas sequenciais), conforme restrição arquitetural.
+; TODO: deve receber um ponteiro para armazenar a seleção
 exibir_menu:
 	push    ebp
 	mov     ebp, esp

@@ -11,32 +11,41 @@ section .data
 	str_overflow db      "OCORREU OVERFLOW", 0xA, 0x0
 	len_str_overflow equ     $ - str_overflow
 
+
+; TODO: não pode isso aqui não
 section .bss
-	; TODO: não pode isso aqui não
 	extern buffer_escrita
 
-	; TODO: remover acesso na memória e usar ponteiro
-	tipo_inteiro    resd    1
+	tipo_inteiro    resd    1 	; TODO: isso aqui deve ser feito usando ponteiro
+
 
 section .text
     global _start
 
 	; Funções para operações
-	extern adicao
-	extern subtracao
-	extern multiplicacao
-	extern divisao
-	extern mod
-	extern exponenciacao
+	extern adicao_int32
+	extern subtracao_int32
+	extern multiplicacao_int32
+	extern divisao_int32
+	extern mod_int32
+	extern exponenciacao_int32
+
+	extern adicao_int16
+	extern subtracao_int16
+	extern multiplicacao_int16
+	extern divisao_int16
+	extern mod_int16
+	extern exponenciacao_int16
 
 	; Funções de IO
-    extern print_string
-    extern ler_string
-    extern ler_inteiro
-	extern print_int32
-    extern print_int16
 	extern saudacao
 	extern exibir_menu
+    extern ler_string
+    extern ler_int32
+	extern ler_int16
+    extern print_string
+	extern print_int32
+    extern print_int16
 	extern int32_to_ascii
 
 _start:

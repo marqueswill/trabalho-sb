@@ -15,6 +15,12 @@ len_str_tipo_inteiro equ     $ - str_tipo_inteiro
 str_digite_inteiro db      "Digite um inteiro: ", 0x0
 len_str_digite_inteiro equ     $ - str_digite_inteiro
 
+str_overflow    db      "OCORREU OVERFLOW", 0xA, 0x0
+len_str_overflow equ     $ - str_overflow
+
+str_resultado   db      "Resultado: ", 0x0
+len_str_resultado equ     $ - str_resultado
+
 str_menu        db      0xA, "Escolha uma opção:", 0xA, \
 	"- 1: soma",0xa,\
 	"- 2: subtracao",0xa,\
@@ -27,8 +33,9 @@ len_str_menu    equ     $ - str_menu
 
 ; TODO: isso aqui não pode, refatorar tudo
 section .bss
-	global buffer_escrita
 
+
+; global buffer_escrita
 ; buffer_leitura  resb    30
 ; buffer_escrita  resb    30
 ; tamanho_nome    resd    1
@@ -41,6 +48,7 @@ section .text
     global saudacao
 	global pergunta_precisao
     global exibir_menu
+	global aviso_overflow
 
 	global print_string
     global ler_string
@@ -95,24 +103,23 @@ ler_int32:
 	push    ebp
 	mov     ebp, esp
 
-    ; Exibe string de solicitação "Digite um inteiro: "
+	sub     esp, 16								; aloca espaço para leitura
+
 	push    len_str_digite_inteiro
 	push    str_digite_inteiro
 	call    print_string
 	add     esp, 8
 
-    ; Syscall sys_read
 	mov     eax, 3
 	mov     ebx, 0
-	mov     ecx, [ebp + 8]						; usa o buffer local recebido pela pilha
+	lea     ecx, [ebp - 16]						; usa o espaço alocado
 	mov     edx, 12								; limite de 12 bytes para 32 bits com sinal
 	int     0x80
 
-	push    dword [ebp + 8]						; passa o buffer local para a conversão
-	call    ascii_to_int32
-	add     esp, 4
-
-    ; resultado final conversão em eax, só encerra
+	lea     ecx, [ebp - 16]
+	push    ecx
+	call    ascii_to_int32						; converte para inteiro
+	add     esp, 4								; resultado final conversão em eax, só encerra
 
 	mov     esp, ebp
 	pop     ebp
@@ -187,13 +194,18 @@ pergunta_precisao:
 	push    len_str_tipo_inteiro
 	push    str_tipo_inteiro
 	call    print_string
+	add     esp, 8
 
-	; TODO: separar para uma função própria que recebe ponteiro para armazenar precisao
+	push    resposta_precisao
 	call    ler_string
-	movzx   eax, byte [buffer_leitura]			; lê o primeiro byte
+	add     esp, 4
+
+	movzx   eax, byte [resposta_precisao]		; lê o primeiro byte
 	sub     eax, 48								; converte para inteiro
+
     ; TODO: verificar se entrada é valida -> 0 ou 1
 
+	mov     [resposta_precisao], eax
 
 	mov     esp, ebp
 	pop     ebp
@@ -209,14 +221,32 @@ exibir_menu:
 	push    len_str_menu
 	push    str_menu
 	call    print_string
+	add     esp, 8
 
-	push    resposta_precisao
+	push    opcao_menu
 	call    ler_string
+	add     esp, 4
 
-	movzx   eax, byte [resposta_precisao]		; lê o primeiro byte
+	movzx   eax, byte [opcao_menu]				; lê o primeiro byte
 	sub     eax, 48								; converte para inteiro
 
+
     ; TODO: verificar se entrada é valida -> 1 a 7
+
+	mov     [opcao_menu], eax
+
+	mov     esp, ebp
+	pop     ebp
+	ret
+
+aviso_overflow:
+	push    ebp
+	mov     ebp, esp
+
+	push    len_str_overflow
+	push    str_overflow
+	call    print_string
+	add     esp, 8
 
 	mov     esp, ebp
 	pop     ebp
@@ -367,24 +397,24 @@ print_int32:
 	push    ebp
 	mov     ebp, esp
 
-	; eax já tem o valor pra converter
-	push    eax
-	push    buffer_escrita
-	call    int32_to_ascii						; converte para int para ascii e retorna o número de bytes em buffer_escrita
+	sub     esp, 32								; aloca espaço para escrever o resultado
+	push    eax									; guarda o resultado
 
-	push    eax
-	push    buffer_escrita
+	push    len_str_resultado
+	push    str_resultado
 	call    print_string
+	add     esp, 8
 
-	add     esp, 12
+	lea     eax, [ebp - 32]
+	push    eax
+	call    int32_to_ascii						; converte para int para ascii e retorna o número de bytes em buffer_escrita
+	add     esp, 8
 
-	mov     esp, ebp
-	pop     ebp
-	ret
-
-int16_to_ascii:
-	push    ebp
-	mov     ebp, esp
+	push    eax									; num bytes que foram escritos
+	lea     eax, [ebp - 32]
+	push    eax
+	call    print_string
+	add     esp, 8
 
 	mov     esp, ebp
 	pop     ebp

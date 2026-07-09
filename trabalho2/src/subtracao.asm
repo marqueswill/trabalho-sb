@@ -1,22 +1,33 @@
 section .text
-    global subtracao_int32
+    global sub_int32
     global subtracao_int16
+    extern ler_int32
+    extern ler_int16
 
-subtracao_int32:
-    push ebp
-    mov ebp, esp
-    mov eax, [ebp+8]
-    sub eax, [ebp+12]
-    mov esp, ebp
-    pop ebp
-    ret
+sub_int32:
+	push    ebp
+	mov     ebp, esp
+
+	call    ler_int32
+	push    eax
+
+	call    ler_int32
+
+	mov     ebx, eax
+	pop     eax
+	sub     eax, ebx							; int1 - int2
+
+
+	mov     esp, ebp
+	pop     ebp
+	ret
 
 
 
 subtracao_int16:
-    push ebp
-    mov ebp, esp
+	push    ebp
+	mov     ebp, esp
 
-    mov esp, ebp
-    pop ebp
-    ret
+	mov     esp, ebp
+	pop     ebp
+	ret

@@ -48,3 +48,7 @@ tests/outputs/*
 
 # debug information files
 *.dwo
+
+# Diretorio de binarios gerados pelo make
+bin/
+build/

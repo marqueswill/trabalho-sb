@@ -163,3 +163,5 @@ escolha_op_32bit:
 	ret
 
 escolha_op_16bit:
+
+; TODO: implementar esse switch case aqui

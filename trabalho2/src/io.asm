@@ -31,14 +31,7 @@ str_menu        db      0xA, "Escolha uma opção:", 0xA, \
 	"- 7: sair",0xa,0xa,0x0
 len_str_menu    equ     $ - str_menu
 
-; TODO: isso aqui não pode, refatorar tudo
-section .bss
 
-
-; global buffer_escrita
-; buffer_leitura  resb    30
-; buffer_escrita  resb    30
-; tamanho_nome    resd    1
 
 section .text
 	extern nome_usuario
@@ -76,7 +69,7 @@ print_string:
 	pop     ebp									; restauro a <referência antiga de ebp>, esp agora aponta para o endereço de retorno
 	ret
 
-; TODO: Receber o ponteiro do buffer_leitura pela pilha em [ebp+8]
+; Receber o ponteiro do buffer para leitura pela pilha em [ebp+8]
 ler_string:
 	push    ebp
 	mov     ebp, esp
@@ -135,16 +128,7 @@ ler_int16:
 	call    print_string
 	add     esp, 8
 
-    ; Syscall sys_read
-	mov     eax, 3
-	mov     ebx, 0
-	mov     ecx, [ebp + 8]						; usa o buffer local recebido pela pilha
-	mov     edx, 7								; limite de 7 bytes para 32 bits com sinal
-	int     0x80
-
-	push    dword [ebp + 8]						; passa o buffer local para a conversão
-	call    ascii_to_int32
-	add     esp, 4
+	; TODO: implementar ler_int16 (se basear em ler_int32, acho que o max é 8 bytes)
 
     ; resultado final conversão em ax, só encerra
 	mov     esp, ebp
@@ -213,7 +197,6 @@ pergunta_precisao:
 
 ; retorna a opcao de operação escolhida pelo usuario
 ; TODO: Quebrar a string do menu e imprimir iterativamente (linha por linha em loop ou chamadas sequenciais), conforme restrição arquitetural.
-; TODO: deve receber um ponteiro para armazenar a seleção
 exibir_menu:
 	push    ebp
 	mov     ebp, esp
@@ -383,15 +366,7 @@ int32_to_ascii:
 	ret
 
 
-print_int16:
-	push    ebp
-	mov     ebp, esp
 
-	; TODO: converter para ascii e dar print
-
-	mov     esp, ebp
-	pop     ebp
-	ret
 
 print_int32:
 	push    ebp
@@ -415,6 +390,27 @@ print_int32:
 	push    eax
 	call    print_string
 	add     esp, 8
+
+	mov     esp, ebp
+	pop     ebp
+	ret
+
+
+int16_to_ascii:
+	push    ebp
+	mov     ebp, esp
+
+	; TODO: converter int16 para ascii
+
+	mov     esp, ebp
+	pop     ebp
+	ret
+
+print_int16:
+	push    ebp
+	mov     ebp, esp
+
+	; TODO: converter para ascii e dar print
 
 	mov     esp, ebp
 	pop     ebp

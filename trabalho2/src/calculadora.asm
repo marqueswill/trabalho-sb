@@ -155,9 +155,9 @@ escolha_op_32bit:
 	push    eax
 	call    print_int32
 	add     esp, 4
+	mov     eax, 0x1							; flag em 1 para continuar exec
 
 .fim:
-	mov     eax, 0x1							; flag em 1 para continuar exec
 	mov     esp, ebp
 	pop     ebp
 	ret

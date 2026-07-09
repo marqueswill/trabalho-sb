@@ -51,6 +51,8 @@ exp_int32:
 	mov     esp, ebp
 	pop     ebp
 	pop     eax									; retira o endereço de retorno (ret)
+
+	mov     eax, 0x0							; flag pra parar exec
 	jmp     escolha_op_32bit.fim				; gambiarra
 
 

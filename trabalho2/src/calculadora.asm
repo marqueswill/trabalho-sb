@@ -38,7 +38,7 @@ section .text
 	extern multiplicacao_int16
 	extern divisao_int16
 	extern mod_int16
-	extern exponenciacao_int16
+	extern exp_int16
 
 	; Funções de IO
 	extern saudacao
@@ -164,59 +164,59 @@ escolha_op_32bit:
 	ret
 
 escolha_op_16bit:
-    push    ebp
-    mov     ebp, esp
+	push    ebp
+	mov     ebp, esp
 
-    mov     eax, [opcao_menu]
+	mov     eax, [opcao_menu]
 
-    cmp     eax, 0x1
-    je      .op_adicao
-    cmp     eax, 0x2
-    je      .op_subtracao
-    cmp     eax, 0x3
-    je      .op_multiplicacao
-    cmp     eax, 0x4
-    je      .op_divisao
-    cmp     eax, 0x5
-    je      .op_exponenciacao
-    cmp     eax, 0x6
-    je      .op_mod
+	cmp     eax, 0x1
+	je      .op_adicao
+	cmp     eax, 0x2
+	je      .op_subtracao
+	cmp     eax, 0x3
+	je      .op_multiplicacao
+	cmp     eax, 0x4
+	je      .op_divisao
+	cmp     eax, 0x5
+	je      .op_exponenciacao
+	cmp     eax, 0x6
+	je      .op_mod
 
-    jmp     .fim
+	jmp     .fim
 
 .op_adicao:
-    call    adicao_int16
-    jmp     .resultado
+	call    adicao_int16
+	jmp     .resultado
 
 .op_subtracao:
-    call    subtracao_int16
-    jmp     .resultado
+	call    subtracao_int16
+	jmp     .resultado
 
 .op_multiplicacao:
-    call    multiplicacao_int16
-    jmp     .resultado
+	call    multiplicacao_int16
+	jmp     .resultado
 
 .op_divisao:
-    call    divisao_int16
-    jmp     .resultado
+	call    divisao_int16
+	jmp     .resultado
 
 .op_exponenciacao:
-    call    exponenciacao_int16
-    jmp     .resultado
+	call    exp_int16
+	jmp     .resultado
 
 .op_mod:
-    call    mod_int16
-    jmp     .resultado
+	call    mod_int16
+	jmp     .resultado
 
 .resultado:
-    push    eax
-    call    print_int16
-    add     esp, 4
+	push    eax
+	call    print_int16
+	add     esp, 4
 
 .fim:
-    mov     eax, 0x1
-    mov     esp, ebp
-    pop     ebp
-    ret
+	mov     eax, 0x1
+	mov     esp, ebp
+	pop     ebp
+	ret
 
 ; TODO: implementar esse switch case aqui

@@ -1,12 +1,11 @@
 section .text
     global exp_int32
-    global exponenciacao_int16
+    global exp_int16
     extern ler_int32
     extern ler_int16
 	extern aviso_overflow
 	extern escolha_op_32bit.fim
 	extern escolha_op_16bit.fim
-	extern aviso_overflow
 
 
 exp_int32:
@@ -58,45 +57,45 @@ exp_int32:
 	jmp     escolha_op_32bit.fim				; gambiarra
 
 
-exponenciacao_int16:
-    push    ebp
-    mov     ebp, esp
+exp_int16:
+	push    ebp
+	mov     ebp, esp
 
-    xor     edx, edx
+	xor     edx, edx
 
-    call    ler_int16                   ; base
-    push    eax
+	call    ler_int16							; base
+	push    eax
 
-    call    ler_int16                   ; expoente
-    mov     ecx, eax
+	call    ler_int16							; expoente
+	mov     ecx, eax
 
-    pop     ebx
+	pop     ebx
 
-    xor     eax, eax
-    inc     eax
+	xor     eax, eax
+	inc     eax
 
 .loop16:
-    cmp     ecx, 0
-    jle     .fim16
+	cmp     ecx, 0
+	jle     .fim16
 
-    imul    eax, ebx
-    cmp     eax, 32767
-    jg      .teve_overflow16
-    cmp     eax, -32768
-    jl      .teve_overflow16
+	imul    eax, ebx
+	cmp     eax, 32767
+	jg      .teve_overflow16
+	cmp     eax, -32768
+	jl      .teve_overflow16
 
-    dec     ecx
-    jmp     .loop16
+	dec     ecx
+	jmp     .loop16
 
 .fim16:
-    mov     esp, ebp
-    pop     ebp
-    ret
+	mov     esp, ebp
+	pop     ebp
+	ret
 
 .teve_overflow16:
-    mov     edx, 1
-    call    aviso_overflow
-    mov     esp, ebp
-    pop     ebp
-    pop     eax
-    jmp     escolha_op_16bit.fim
+	mov     edx, 1
+	call    aviso_overflow
+	mov     esp, ebp
+	pop     ebp
+	pop     eax
+	jmp     escolha_op_16bit.fim

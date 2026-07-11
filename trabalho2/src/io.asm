@@ -18,6 +18,9 @@ len_str_digite_inteiro equ     $ - str_digite_inteiro
 str_overflow    db      "OCORREU OVERFLOW", 0xA, 0x0
 len_str_overflow equ     $ - str_overflow
 
+str_div0        db      "DIVISAO POR 0", 0xA, 0x0
+len_str_div0    equ     $ - str_div0
+
 str_resultado   db      "Resultado: ", 0x0
 len_str_resultado equ     $ - str_resultado
 
@@ -42,6 +45,7 @@ section .text
 	global pergunta_precisao
     global exibir_menu
 	global aviso_overflow
+	global aviso_div_zero
 
 	global print_string
     global ler_string
@@ -241,6 +245,19 @@ aviso_overflow:
 
 	push    len_str_overflow
 	push    str_overflow
+	call    print_string
+	add     esp, 8
+
+	mov     esp, ebp
+	pop     ebp
+	ret
+
+aviso_div_zero:
+	push    ebp
+	mov     ebp, esp
+
+	push    len_str_div0
+	push    str_div0
 	call    print_string
 	add     esp, 8
 

@@ -5,6 +5,8 @@ section .text
     extern ler_int16
 	extern escolha_op_32bit.fim
 	extern aviso_overflow
+	extern escolha_op_16bit.fim
+	extern aviso_overflow
 
 mult_int32:
 	push    ebp
@@ -35,13 +37,37 @@ mult_int32:
 	mov     esp, ebp
 	pop     ebp
 	pop     eax									; retira o endereço de retorno (ret)
+
+	mov     eax, 0x0							; flag pra parar exec
 	jmp     escolha_op_32bit.fim				; gambiarra
 
 
 multiplicacao_int16:
-	push    ebp
-	mov     ebp, esp
+    push    ebp
+    mov     ebp, esp
 
-	mov     esp, ebp
-	pop     ebp
-	ret
+    xor     edx, edx
+
+    call    ler_int16
+    push    eax
+
+    call    ler_int16
+    pop     ebx
+    imul    eax, ebx
+
+    cmp     eax, 32767
+    jg      .teve_overflow16
+    cmp     eax, -32768
+    jl      .teve_overflow16
+
+    mov     esp, ebp
+    pop     ebp
+    ret
+
+.teve_overflow16:
+    mov     edx, 1
+    call    aviso_overflow
+    mov     esp, ebp
+    pop     ebp
+    pop     eax
+    jmp     escolha_op_16bit.fim        ; equivalente ao "gambiarra" ja usado no 32 bits

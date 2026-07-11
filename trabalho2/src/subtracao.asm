@@ -25,9 +25,17 @@ sub_int32:
 
 
 subtracao_int16:
-	push    ebp
-	mov     ebp, esp
+    push    ebp
+    mov     ebp, esp
 
-	mov     esp, ebp
-	pop     ebp
-	ret
+    call    ler_int16
+    push    eax
+
+    call    ler_int16
+    mov     ebx, eax
+    pop     eax
+    sub     eax, ebx                    ; int1 - int2
+
+    mov     esp, ebp
+    pop     ebp
+    ret

@@ -23,9 +23,17 @@ adicao_int32:
 	ret
 
 adicao_int16:
-	push    ebp
-	mov     ebp, esp
+    push    ebp
+    mov     ebp, esp
 
-	mov     esp, ebp
-	pop     ebp
-	ret
+    call    ler_int16
+    push    eax
+
+    call    ler_int16
+    pop     ebx
+
+    add     eax, ebx
+
+    mov     esp, ebp
+    pop     ebp
+    ret

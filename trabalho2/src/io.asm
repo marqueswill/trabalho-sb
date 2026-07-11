@@ -49,10 +49,12 @@ section .text
 	global ler_int32
     global print_int32
 	global int32_to_ascii
+	global ascii_to_int32
 
 	global ler_int16
     global print_int16
 	global int16_to_ascii
+	global ascii_to_int16
 
 ; Recebe via pilha: [ponteiro da string] e [quantidade de bytes]
 print_string:
@@ -122,15 +124,26 @@ ler_int16:
 	push    ebp
 	mov     ebp, esp
 
+	sub     esp, 8								; buffer local ("-32768\n" = 7 bytes)
+
     ; Exibe string de solicitação "Digite um inteiro: "
 	push    len_str_digite_inteiro
 	push    str_digite_inteiro
 	call    print_string
 	add     esp, 8
 
-	; TODO: implementar ler_int16 (se basear em ler_int32, acho que o max é 8 bytes)
+	mov     eax, 3
+	mov     ebx, 0
+	lea     ecx, [ebp - 8]
+	mov     edx, 7								; limite de 7 bytes: "-32768\n" a "32767\n"
+	int     0x80
 
-    ; resultado final conversão em ax, só encerra
+	lea     ecx, [ebp - 8]
+	push    ecx
+	call    ascii_to_int16						; converte para inteiro
+	add     esp, 4
+
+    ; resultado final conversão em eax, só encerra
 	mov     esp, ebp
 	pop     ebp
 	ret
@@ -235,18 +248,6 @@ aviso_overflow:
 	pop     ebp
 	ret
 
-ascii_to_int16:
-	push    ebp
-	mov     ebp, esp
-
-loop_ascii_to_int16:
-	; TODO: Implementar a lógica de conversão de ASCII para inteiro de 16 bits.
-end_loop_ascii_to_int16:
-
-	mov     esp, ebp
-	pop     ebp
-	ret
-
 ; Entrada: ponteiro para a string na stack [ebp+8]
 ; Saída:   eax, valor inteiro de 32 bits
 ascii_to_int32:
@@ -310,6 +311,65 @@ ascii_to_int32:
 	pop     ebp
 	ret
 
+; Entrada: ponteiro para a string na stack [ebp+8]
+; Saída:   eax, valor inteiro com sinal (cabe em 16 bits)
+ascii_to_int16:
+	push    ebp
+	mov     ebp, esp
+	push    ebx
+	push    esi
+
+	mov     esi, [ebp+8]
+	xor     eax, eax
+	xor     ebx, ebx
+	xor     ecx, ecx
+
+.ignora_espacos16:
+	mov     bl, byte [esi]
+	cmp     bl, ' '
+	jne     .verifica_sinal16
+	inc     esi
+	jmp     .ignora_espacos16
+
+.verifica_sinal16:
+	cmp     bl, '-'
+	jne     .verifica_positivo16
+	mov     ecx, 1
+	inc     esi
+	jmp     .laco_conversao16
+
+.verifica_positivo16:
+	cmp     bl, '+'
+	jne     .laco_conversao16
+	inc     esi
+
+.laco_conversao16:
+	mov     bl, byte [esi]
+	test    bl, bl
+	jz      .fim_laco_conversao16
+	cmp     bl, '0'
+	jl      .fim_laco_conversao16
+	cmp     bl, '9'
+	jg      .fim_laco_conversao16
+
+	sub     bl, '0'
+	imul    eax, 10
+	add     eax, ebx
+	inc     esi
+	jmp     .laco_conversao16
+
+.fim_laco_conversao16:
+	test    ecx, ecx
+	jz      .fim_ascii_to_int16
+	neg     eax
+
+.fim_ascii_to_int16:
+	pop     esi
+	pop     ebx
+	mov     esp, ebp
+	pop     ebp
+	ret
+
 
 ; Entrada:
 ;   [ebp+8] - ponteiro para o buffer_saida
@@ -365,7 +425,23 @@ int32_to_ascii:
 	pop     ebp
 	ret
 
+; Reaproveita int32_to_ascii: o algoritmo de conversão para texto e o mesmo
+; independente da largura do inteiro, so muda a faixa de valores possiveis.
+; Entrada:
+;   [ebp+8]  - ponteiro para o buffer_saida
+;   [ebp+12] - valor inteiro (cabe em 16 bits)
+int16_to_ascii:
+	push    ebp
+	mov     ebp, esp
 
+	push    dword [ebp+12]
+	push    dword [ebp+8]
+	call    int32_to_ascii
+	add     esp, 8
+
+	mov     esp, ebp
+	pop     ebp
+	ret
 
 
 print_int32:
@@ -396,21 +472,28 @@ print_int32:
 	ret
 
 
-int16_to_ascii:
-	push    ebp
-	mov     ebp, esp
-
-	; TODO: converter int16 para ascii
-
-	mov     esp, ebp
-	pop     ebp
-	ret
-
 print_int16:
 	push    ebp
 	mov     ebp, esp
 
-	; TODO: converter para ascii e dar print
+	sub     esp, 32								; aloca espaço para escrever o resultado
+	push    eax									; guarda o resultado
+
+	push    len_str_resultado
+	push    str_resultado
+	call    print_string
+	add     esp, 8
+
+	lea     eax, [ebp - 32]
+	push    eax
+	call    int16_to_ascii						; converte para ascii e retorna o número de bytes escritos
+	add     esp, 8
+
+	push    eax									; num bytes que foram escritos
+	lea     eax, [ebp - 32]
+	push    eax
+	call    print_string
+	add     esp, 8
 
 	mov     esp, ebp
 	pop     ebp

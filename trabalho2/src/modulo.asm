@@ -26,9 +26,20 @@ mod_int32:
 	ret
 
 mod_int16:
-	push    ebp
-	mov     ebp, esp
+    push    ebp
+    mov     ebp, esp
 
-	mov     esp, ebp
-	pop     ebp
-	ret
+    call    ler_int16
+    push    eax
+
+    call    ler_int16
+    mov     ebx, eax
+
+    pop     eax
+    cdq
+    idiv    ebx
+    mov     eax, edx
+
+    mov     esp, ebp
+    pop     ebp
+    ret

@@ -23,6 +23,7 @@ section .text
 	global resposta_precisao
 	global nome_usuario
 	global escolha_op_32bit.fim
+	global escolha_op_16bit.fim
 
 	; Funções para operações
 	extern adicao_int32
@@ -163,5 +164,59 @@ escolha_op_32bit:
 	ret
 
 escolha_op_16bit:
+    push    ebp
+    mov     ebp, esp
+
+    mov     eax, [opcao_menu]
+
+    cmp     eax, 0x1
+    je      .op_adicao
+    cmp     eax, 0x2
+    je      .op_subtracao
+    cmp     eax, 0x3
+    je      .op_multiplicacao
+    cmp     eax, 0x4
+    je      .op_divisao
+    cmp     eax, 0x5
+    je      .op_exponenciacao
+    cmp     eax, 0x6
+    je      .op_mod
+
+    jmp     .fim
+
+.op_adicao:
+    call    adicao_int16
+    jmp     .resultado
+
+.op_subtracao:
+    call    subtracao_int16
+    jmp     .resultado
+
+.op_multiplicacao:
+    call    multiplicacao_int16
+    jmp     .resultado
+
+.op_divisao:
+    call    divisao_int16
+    jmp     .resultado
+
+.op_exponenciacao:
+    call    exponenciacao_int16
+    jmp     .resultado
+
+.op_mod:
+    call    mod_int16
+    jmp     .resultado
+
+.resultado:
+    push    eax
+    call    print_int16
+    add     esp, 4
+
+.fim:
+    mov     eax, 0x1
+    mov     esp, ebp
+    pop     ebp
+    ret
 
 ; TODO: implementar esse switch case aqui

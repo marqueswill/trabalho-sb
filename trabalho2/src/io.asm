@@ -24,15 +24,34 @@ len_str_div0    equ     $ - str_div0
 str_resultado   db      "Resultado: ", 0x0
 len_str_resultado equ     $ - str_resultado
 
-str_menu        db      0xA, "Escolha uma opção:", 0xA, \
-	"- 1: soma",0xa,\
-	"- 2: subtracao",0xa,\
-	"- 3: multiplicacao",0xa,\
-	"- 4: divisao",10,\
-	"- 5: exponenciacao",0xa,\
-	"- 6: mod",0xa,\
-	"- 7: sair",0xa,0xa,0x0
-len_str_menu    equ     $ - str_menu
+
+; manu
+str_m0          db      0xA, "Escolha uma opção:", 0xA
+len_m0          equ     $ - str_m0
+str_m1          db      "- 1: soma", 0xA
+len_m1          equ     $ - str_m1
+str_m2          db      "- 2: subtracao", 0xA
+len_m2          equ     $ - str_m2
+str_m3          db      "- 3: multiplicacao", 0xA
+len_m3          equ     $ - str_m3
+str_m4          db      "- 4: divisao", 0xA
+len_m4          equ     $ - str_m4
+str_m5          db      "- 5: exponenciacao", 0xA
+len_m5          equ     $ - str_m5
+str_m6          db      "- 6: mod", 0xA
+len_m6          equ     $ - str_m6
+str_m7          db      "- 7: sair", 0xA, 0xA
+len_m7          equ     $ - str_m7
+
+menu_array:
+	dd      str_m0, len_m0
+	dd      str_m1, len_m1
+	dd      str_m2, len_m2
+	dd      str_m3, len_m3
+	dd      str_m4, len_m4
+	dd      str_m5, len_m5
+	dd      str_m6, len_m6
+	dd      str_m7, len_m7
 
 
 
@@ -213,15 +232,30 @@ pergunta_precisao:
 	ret
 
 ; retorna a opcao de operação escolhida pelo usuario
-; TODO: Quebrar a string do menu e imprimir iterativamente (linha por linha em loop ou chamadas sequenciais), conforme restrição arquitetural.
 exibir_menu:
 	push    ebp
 	mov     ebp, esp
 
-	push    len_str_menu
-	push    str_menu
+	push    esi
+	push    ecx
+
+	mov     esi, menu_array
+	mov     ecx, 8								; 8 linhas para imprimir
+
+.imprimir_loop:
+	push    ecx
+
+	mov     eax, [esi + 4]						; comprimento
+	push    eax
+	mov     eax, [esi]							; string
+	push    eax
 	call    print_string
 	add     esp, 8
+
+	pop     ecx
+	add     esi, 8								; avança para o próximo len_m
+	dec     ecx
+	jnz     .imprimir_loop
 
 	push    opcao_menu
 	call    ler_string
@@ -229,11 +263,10 @@ exibir_menu:
 
 	movzx   eax, byte [opcao_menu]				; lê o primeiro byte
 	sub     eax, 48								; converte para inteiro
-
-
-    ; TODO: verificar se entrada é valida -> 1 a 7
-
 	mov     [opcao_menu], eax
+
+	pop     ecx
+	pop     esi
 
 	mov     esp, ebp
 	pop     ebp

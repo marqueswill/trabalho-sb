@@ -5,8 +5,6 @@ len_str_ecerrar equ     $ - str_ecerrar
 str_continuar   db      0xa, "Pressione enter para continuar", 0x0
 len_str_continuar equ     $ - str_continuar
 
-
-
 str_opcao_invalida db      "OPCAO INVALIDA!", 0xA, 0x0
 len_str_opcao_invalida equ     $ - str_opcao_invalida
 
@@ -89,6 +87,13 @@ loop_execucao:
 	jmp     loop_execucao
 
 .end:
+	call    encerrar_calculadora
+
+
+
+; === FUNÇÕES AUXILIARES ===
+
+encerrar_calculadora:
 	push    len_str_ecerrar
 	push    str_ecerrar
 	call    print_string
@@ -99,8 +104,6 @@ loop_execucao:
 	xor     ebx, ebx							; código de retorno 0
 	int     0x80
 
-
-; === FUNÇÕES AUXILIARES ===
 escolha_op_32bit:
 	push    ebp
 	mov     ebp, esp
@@ -153,8 +156,8 @@ escolha_op_32bit:
 
 
 .resultado:
-	push    eax
-	call    print_int32
+	push    eax									; salvo resultado na pilha
+	call    print_int32							; chamo função pra dar print nele
 	add     esp, 4
 	mov     eax, 0x1							; flag em 1 para continuar exec
 
@@ -212,11 +215,12 @@ escolha_op_16bit:
 	push    eax
 	call    print_int16
 	add     esp, 4
+	mov     eax, 0x1
 
 .fim:
-	mov     eax, 0x1
 	mov     esp, ebp
 	pop     ebp
 	ret
 
-; TODO: implementar esse switch case aqui
+
+; === INPUT E OUTPUT ===

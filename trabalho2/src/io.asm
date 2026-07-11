@@ -499,15 +499,17 @@ print_int32:
 	mov     ebp, esp
 
 	sub     esp, 32								; aloca espaço para escrever o resultado
-	push    eax									; guarda o resultado
+
 
 	push    len_str_resultado
 	push    str_resultado
 	call    print_string
 	add     esp, 8
 
-	lea     eax, [ebp - 32]
+	mov     eax, [ebp+8]
 	push    eax
+	lea     eax, [ebp - 32]
+	push    eax									; inteiro que foi lido em ascii
 	call    int32_to_ascii						; converte para int para ascii e retorna o número de bytes em buffer_escrita
 	add     esp, 8
 
@@ -527,13 +529,14 @@ print_int16:
 	mov     ebp, esp
 
 	sub     esp, 32								; aloca espaço para escrever o resultado
-	push    eax									; guarda o resultado
 
 	push    len_str_resultado
 	push    str_resultado
 	call    print_string
 	add     esp, 8
 
+	mov     eax, [ebp + 8]
+	push    eax									; guarda o resultado
 	lea     eax, [ebp - 32]
 	push    eax
 	call    int16_to_ascii						; converte para ascii e retorna o número de bytes escritos

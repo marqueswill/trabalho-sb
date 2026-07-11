@@ -414,16 +414,19 @@ pergunta_precisao:
 	push    ebp
 	mov     ebp, esp
 
+	sub     esp, 4
+
 	push    len_str_tipo_inteiro
 	push    str_tipo_inteiro
 	call    print_string
 	add     esp, 8
 
-	push    resposta_precisao
+	lea     eax, [esp - 4]						; alocação local
+	push    eax
 	call    ler_string
 	add     esp, 4
 
-	movzx   eax, byte [resposta_precisao]		; lê o primeiro byte
+	movzx   eax, byte [esp - 4]					; lê o primeiro byte
 	sub     eax, 48								; converte para inteiro
 
     ; TODO: verificar se entrada é valida -> 0 ou 1
@@ -437,6 +440,8 @@ pergunta_precisao:
 exibir_menu:
 	push    ebp
 	mov     ebp, esp
+
+	sub     esp, 4								; aloca espaço pra leitura [ebp - 4]
 
 	push    esi
 	push    ecx
@@ -455,19 +460,20 @@ exibir_menu:
 	add     esp, 8
 
 	pop     ecx
-	add     esi, 8								; avança para o próximo len_m
+	add     esi, 8								; avança para próxima string no array
 	dec     ecx
 	jnz     .imprimir_loop
 
-	push    opcao_menu
+	pop     ecx
+	pop     esi
+
+	lea     eax, [ebp - 4]						; carrega o endereço do buffer local
+	push    eax
 	call    ler_string
 	add     esp, 4
 
-	movzx   eax, byte [opcao_menu]				; lê o primeiro byte
-	sub     eax, 48								; converte para inteiro
-
-	pop     ecx
-	pop     esi
+	movzx   eax, byte [ebp - 4]
+	sub     eax, 48
 
 	mov     esp, ebp
 	pop     ebp

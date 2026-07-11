@@ -421,12 +421,12 @@ pergunta_precisao:
 	call    print_string
 	add     esp, 8
 
-	lea     eax, [esp - 4]						; alocação local
+	lea     eax, [ebp - 4]						; alocação local
 	push    eax
 	call    ler_string
 	add     esp, 4
 
-	movzx   eax, byte [esp - 4]					; lê o primeiro byte
+	movzx   eax, byte [ebp - 4]					; lê o primeiro byte
 	sub     eax, 48								; converte para inteiro
 
     ; TODO: verificar se entrada é valida -> 0 ou 1
